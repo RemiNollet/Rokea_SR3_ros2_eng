@@ -1,6 +1,6 @@
 ﻿/**
  * @file model.h
- * @brief xMateModel模型库
+ * @brief xMateModelModel Library
  * @copyright Copyright (C) 2025 ROKAE (Beijing) Technology Co., LTD. All Rights Reserved.
  * Information in this file is the intellectual property of Rokae Technology Co., Ltd,
  * And may contains trade secrets that must be stored and viewed confidentially.
@@ -25,7 +25,7 @@ namespace rokae {
 
  /**
   * @class BaseModel
-  * @brief 模型通用类
+  * @brief General Model Class
   */
  class XCORE_API BaseModel : public Base<BaseModel>{
   public:
@@ -40,8 +40,8 @@ namespace rokae {
 
 /**
  * @class Model_T
- * @brief 模型模板类
- * @tparam DoF 轴数
+ * @brief Model Template Class
+ * @tparam DoF Number of axles
  */
  template<unsigned short DoF>
  class XCORE_API Model_T : public BaseModel {
@@ -50,40 +50,40 @@ namespace rokae {
    using BaseModel::BaseModel;
 
    /**
-    * @brief 根据位姿计算逆解。逆解选解策略:
-    *   1) 默认Conf关闭时，选择离当前位置最近的解
-    *   2) 默认Conf打开时，用confData计算
-    * @param[in] posture 机器人末端位姿，相对于外部参考坐标系。参考的坐标系是通过setToolset()设置的
-    * @param[out] ec 错误码
-    * @return 轴角度, 单位:弧度
+    * @brief Calculate the inverse solution based on the pose. Inverse solution selection strategy:
+    *   1) When the default Conf is off, select the solution closest to the current position
+    *   2) When the default Conf is turned on, use confData to calculate
+    * @param[in] posture The end-effector pose of the robot, relative to the external reference coordinate system. The reference coordinate system is defined bysetToolset()set
+    * @param[out] ec Error code
+    * @return Axis angle, unit: radian
     */
    std::array<double, DoF> calcIk(CartesianPosition posture, error_code &ec) noexcept;
 
    /**
-    * @brief 根据位姿计算给定工具工件坐标系下逆解。逆解选解策略:
-    *   1) 默认Conf关闭时，选择离当前位置最近的解
-    *   2) 默认Conf打开时，用confData计算
-    * @param[in] posture 机器人末端位姿，相对于外部参考坐标系
-    * @param[in] tool_set 工具工件坐标系
-    * @param[out] ec 错误码
-    * @return 轴角度, 单位:弧度
+    * @brief Calculate the inverse solution under the given tool workpiece coordinate system based on the pose. Inverse solution selection strategy:
+    *   1) When the default Conf is off, select the solution closest to the current position
+    *   2) When the default Conf is turned on, use confData to calculate
+    * @param[in] posture Robot end-effector pose relative to the external reference coordinate system
+    * @param[in] tool_set Tool-workpiece coordinate system
+    * @param[out] ec Error code
+    * @return Axis angle, unit: radian
     */
    std::array<double,DoF> calcIk(CartesianPosition posture,const Toolset &tool_set, error_code& ec) noexcept;
 
    /**
-    * @brief 根据轴角度计算正解。
-    * @param[in] joints 轴角度, 单位: 弧度
-    * @param[out] ec 错误码
-    * @return 机器人末端位姿，相对于外部参考坐标系。参考的坐标系是通过setToolset()设置的
+    * @brief Calculate the forward solution based on the axis angle。
+    * @param[in] joints Axis angle, unit: radians
+    * @param[out] ec Error code
+    * @return The end-effector pose of the robot, relative to the external reference coordinate system. The reference coordinate system is defined bysetToolset()set
     */
    CartesianPosition calcFk(const std::array<double, DoF> &joints, error_code &ec) noexcept;
 
    /**
-    * @brief 根据轴角度计算给定工具工件坐标系下正解
-    * @param joints 轴角度, 单位: 弧度
-    * @param tool_set 工具工件坐标系
-    * @param ec 错误码
-    * @return 机器人末端位姿，相对于外部参考坐标系
+    * @brief Calculate the forward solution in the given tool-workpiece coordinate system based on the axis angles
+    * @param joints Axis angle, unit: radians
+    * @param tool_set Tool-workpiece coordinate system
+    * @param ec Error code
+    * @return Robot end-effector pose relative to the external reference coordinate system
     */
    CartesianPosition calcFk(const std::array<double,DoF> &joints,const Toolset &tool_set, error_code& ec) noexcept;
 
@@ -91,7 +91,7 @@ namespace rokae {
 
  /**
   * @enum SegmentFrame
-  * @brief 连杆标号
+  * @brief Connecting rod number
   */
  enum class SegmentFrame : unsigned {
    joint1 = 1, joint2 = 2, joint3 = 3, joint4 = 4, joint5 = 5,
@@ -99,23 +99,23 @@ namespace rokae {
 
  /**
   * @enum TorqueType
-  * @brief 力矩类型
+  * @brief Torque Type
   */
  enum class TorqueType {
-   full,     ///< 关节力矩，由动力学模型计算得到
-   inertia,  ///< 惯性力
-   coriolis, ///< 科氏力
-   friction, ///< 摩擦力
-   gravity   ///< 重力
+   full,     ///< Joint torque, calculated from the dynamic model
+   inertia,  ///< Inertial force
+   coriolis, ///< Coriolis force
+   friction, ///< Friction
+   gravity   ///< Gravity
  };
 
 #ifdef XMATEMODEL_LIB_SUPPORTED
 
  /**
   * @class xMateModel
-  * @brief xMate模型库。支持的机型: xMateER系列, XMC7/12, XMS3/4/5。
-  * 注意：对于XMS5机型，需要升级特殊版本的机型文件后方可使用模型库，否则计算结果是错误的，请联系珞石技术支持人员进行机型文件升级。
-  * @tparam DoF 轴数
+  * @brief xMateModel library. Supported models: xMateER series, XMC7/12, XMS3/4/5。
+  * Note: For the XMS5 model, you need to upgrade to a special version of the model file before using the model library. Otherwise, the calculation results will be incorrect. Please contact Luoshi technical support staff to upgrade the model file.。
+  * @tparam DoF Number of axles
   */
  template <unsigned short DoF>
  class XCORE_API xMateModel : public Model_T<DoF> {
@@ -123,52 +123,52 @@ namespace rokae {
   public:
    /**
     * @brief Create an xMateModel instance
-    * @throw ExecutionException 加载模型失败
+    * @throw ExecutionException Failed to load model
     */
    explicit xMateModel(std::shared_ptr<XService> rpc, const Info& info);
    ~xMateModel();
 
    /**
-    * @brief 设置负载参数，只在计算时使用，并不将参数传给机器人控制器，设置后动力学计算结果相应改变
-    * @param[in] mass 质量
-    * @param[in] cog 质心, 单位: m
-    * @param[in] inertia 惯量
+    * @brief Set load parameters, used only during calculations, and do not pass the parameters to the robot controller. After setting, the results of the dynamic calculations will change accordingly.
+    * @param[in] mass Quality
+    * @param[in] cog Center of mass, unit: m
+    * @param[in] inertia Inertia
     * @see Load
     */
    void setLoad(double mass, const std::array<double, 3> &cog, const std::array<double, 3> &inertia);
 
    /**
-    * @brief 设置TCP工具，只在计算时使用，并不将参数传给机器人控制器，设置TCP后，正逆解结果和输入参数相应改变
-    * @param[in] f_t_ee 末端执行器相对于法兰的位姿
-    * @param[in] ee_t_k 刚度坐标系相对于末端执行器的位姿
+    * @brief Set the TCP tool to be used only during calculations and not pass the parameters to the robot controller. After setting the TCP, the forward and inverse kinematics results and input parameters change accordingly.
+    * @param[in] f_t_ee Pose of the end effector relative to the flange
+    * @param[in] ee_t_k Pose of the stiffness coordinate system relative to the end effector
     */
    void setTcpCoor(const std::array<double, 16> &f_t_ee, const std::array<double, 16> &ee_t_k);
 
    /**
-    * @brief 获取笛卡尔空间位置
-    * @param[in] jntPos 需要计算笛卡尔位姿的关节角度
-    * @param[in] nr 指定坐标系, 缺省值为flange
-    * @return 向量化4x4位姿矩阵，行优先.
+    * @brief Obtain Cartesian spatial position
+    * @param[in] jntPos Need to calculate the joint angles of the Cartesian pose
+    * @param[in] nr Specify coordinate system, default value isflange
+    * @return Vectorized 4x4 pose matrix, row-major.
     */
    std::array<double, 16> getCartPose(const std::array<double, DoF> &jntPos, SegmentFrame nr = SegmentFrame::flange);
 
    /**
-    * @brief 获取笛卡尔空间速度
-    * @param[in] jntPos 需要计算笛卡尔空间速度的关节角度
-    * @param[in] jntVel 需要计算笛卡尔空间速度的关节角速度
-    * @param[in] nr 指定坐标系, 缺省值为flange
-    * @return 计算结果
+    * @brief Obtain Cartesian space velocity
+    * @param[in] jntPos Joint angles that need to calculate Cartesian space velocity
+    * @param[in] jntVel Joint angular velocity that needs to be calculated for Cartesian space velocity
+    * @param[in] nr Specify coordinate system, default value isflange
+    * @return Calculation Result
     */
    std::array<double, 6> getCartVel(const std::array<double, DoF> &jntPos, const std::array<double, DoF> &jntVel,
                                     SegmentFrame nr = SegmentFrame::flange);
 
    /**
-    * @brief 获取笛卡尔空间加速度
-    * @param[in] jntPos 需要计算笛卡尔空间速度的关节角度
-    * @param[in] jntVel 需要计算笛卡尔空间速度的关节角速度
-    * @param[in] jntAcc 需要计算笛卡尔空间速度的关节角加速度
-    * @param[in] nr 指定坐标系
-    * @return 计算结果
+    * @brief Obtain Cartesian space acceleration
+    * @param[in] jntPos Joint angles that need to calculate Cartesian space velocity
+    * @param[in] jntVel Joint angular velocity that needs to be calculated for Cartesian space velocity
+    * @param[in] jntAcc Joint angular accelerations required to calculate Cartesian space velocity
+    * @param[in] nr Specify coordinate system
+    * @return Calculation Result
     */
    std::array<double, 6> getCartAcc(const std::array<double, DoF> &jntPos,
                                     const std::array<double, DoF> &jntVel,
@@ -176,17 +176,17 @@ namespace rokae {
                                     SegmentFrame nr = SegmentFrame::flange );
 
    /**
-    * @brief 逆解获得关节空间位置。一个位姿可能对应多个关节角度，jntPos的选取原则是选取一个与jntInit最近的解。
-    * @param[in] cartPos 法兰笛卡尔空间位姿
-    * @param[in] elbow 臂角
-    * @param[in] jntInit 初始关节角度
-    * @param[out] jntPos 关节空间位置
-    * @return 计算逆解结果 -
-    *    1) -1, -2, -3: 无解，原因是cartPos超出机器人工作空间;
-    *    2) -4, -5: jntPos与jntInit相差较大，一般认为jntInit代表机器人当前位置，jntPos与jntInit之差可以等效为电机转速。
-    *               若超过机器人轴额定转速，则返回-4或-5;
-    *    3) -6, -7: jntPos超过软限位;
-    *    4)	-8: 机器人奇异；
+    * @brief Inverse kinematics is used to obtain joint space positions. A single pose may correspond to multiple joint angles, and the principle for selecting jntPos is to choose a solution that is closest to jntInit.。
+    * @param[in] cartPos Franka Emika Cartesian Space Pose
+    * @param[in] elbow Arm angle
+    * @param[in] jntInit Initial joint angle
+    * @param[out] jntPos Joint space position
+    * @return Calculate the inverse solution result -
+    *    1) -1, -2, -3: No solution, the reason is that cartPos exceeds the robot's workspace;
+    *    2) -4, -5: jntPosThere is a significant difference from jntInit. It is generally believed that jntInit represents the robot's current position, and the difference between jntPos and jntInit can be equivalent to the motor speed.。
+    *               If the robot axis exceeds the rated speed, it will return -4 or-5;
+    *    3) -6, -7: jntPosExceeding soft limit;
+    *    4)	-8: Robot Strange；
     */
     int getJointPos(const std::array<double, 16> &cartPos,
                     double elbow,
@@ -194,39 +194,39 @@ namespace rokae {
                     std::array<double, DoF> &jntPos);
 
    /**
-    * @brief 逆解获得关节空间速度
-    * @param[in] cartVel 法兰笛卡尔空间速度
-    * @param[in] jntPos 此时关节角度
-    * @return 计算结果
+    * @brief Obtain joint space velocity through inverse solution
+    * @param[in] cartVel Cartesian space velocity
+    * @param[in] jntPos Joint angle at this time
+    * @return Calculation Result
     */
    std::array<double, DoF> getJointVel(const std::array<double, 6> &cartVel, const std::array<double, DoF> &jntPos);
 
    /**
-    * @brief 逆解获得关节空间加速度
-    * @param[in] cartAcc 法兰笛卡尔空间加速度
-    * @param[in] jntPos 此时关节角度
-    * @param[in] jntVel 此时关节角速度
-    * @return 计算结果
+    * @brief Inverse solution to obtain joint space acceleration
+    * @param[in] cartAcc Fractal Cartesian Space Acceleration
+    * @param[in] jntPos Joint angle at this time
+    * @param[in] jntVel Joint angular velocity at this time
+    * @return Calculation Result
     */
    std::array<double, DoF> getJointAcc(const std::array<double, 6> &cartAcc,
                                        const std::array<double, DoF> &jntPos,
                                        const std::array<double, DoF> &jntVel);
 
    /**
-    * @brief 获取指定坐标系相对于基坐标系的雅克比矩阵, 行优先
-    * @param[in] jntPos 关节角度.
-    * @param[in] nr 指定坐标系
-    * @return 计算结果, 长度 \f$ \mathbb{R}^{6 \times DoF} \f$
+    * @brief Obtain the Jacobian matrix of the specified coordinate system relative to the base coordinate system, row-major
+    * @param[in] jntPos Joint angle.
+    * @param[in] nr Specify coordinate system
+    * @return Calculation result, length \f$ \mathbb{R}^{6 \times DoF} \f$
     */
    std::array<double, DoF*6> jacobian(const std::array<double, DoF> &jntPos, SegmentFrame nr = SegmentFrame::flange);
 
    /**
-    * @brief 获取指定坐标系相对于基坐标系的雅克比矩阵, 行优先
-    * @param[in] jntPos 关节角度.
-    * @param[in] f_t_ee 末端执行器相对于法兰坐标系的位姿.
-    * @param[in] ee_t_k 刚度坐标系相对于末端执行器的位姿.
-    * @param[in] nr 指定坐标系
-    * @return 计算结果, 长度 \f$ \mathbb{R}^{6 \times DoF} \f$
+    * @brief Obtain the Jacobian matrix of the specified coordinate system relative to the base coordinate system, row-major
+    * @param[in] jntPos Joint angle.
+    * @param[in] f_t_ee Pose of the end effector relative to the flange coordinate system.
+    * @param[in] ee_t_k Pose of the stiffness coordinate system relative to the end effector.
+    * @param[in] nr Specify coordinate system
+    * @return Calculation result, length \f$ \mathbb{R}^{6 \times DoF} \f$
     */
    std::array<double, DoF*6> jacobian(const std::array<double, DoF> &jntPos,
                                       const std::array<double, 16> &f_t_ee,
@@ -234,15 +234,15 @@ namespace rokae {
                                       SegmentFrame nr = SegmentFrame::flange);
 
    /**
-    * @brief 由模型计算无摩擦力的关节力矩, 计算结果单位: Nm。如有负载，先通过setLoad()设置负载参数。
-    * @note 原getTorque() 和 getTorqueWithFriction不再支持，计算关节力矩都用此接口
-    * @param[in] jntPos 关节角度
-    * @param[in] jntVel 关节角速度
-    * @param[in] jntAcc 关节角加速度
-    * @param[out] trq_full 总关节力矩
-    * @param[out] trq_inertia 离心力
-    * @param[out] trq_coriolis 科氏力
-    * @param[out] trq_gravity 重力矩
+    * @brief Joint torque calculated by the model without friction, calculation result unit: Nm. If there is a load, first throughsetLoad()Set load parameters。
+    * @note OriginalgetTorque() getTorqueWithFriction is no longer supported, use this interface to calculate joint torque.
+    * @param[in] jntPos Joint angle
+    * @param[in] jntVel Joint angular velocity
+    * @param[in] jntAcc Joint angular acceleration
+    * @param[out] trq_full Total joint torque
+    * @param[out] trq_inertia Centrifugal force
+    * @param[out] trq_coriolis Coriolis force
+    * @param[out] trq_gravity Gravity moment
     */
    void getTorqueNoFriction(const std::array<double, DoF> &jntPos,
                             const std::array<double, DoF> &jntVel,

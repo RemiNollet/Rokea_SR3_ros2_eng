@@ -28,7 +28,7 @@ public:
 				stop_requested_.store(true);
 				response->success = true;
 				response->message = "stop request accepted";
-				RCLCPP_WARN(this->get_logger(), "收到停止请求: /servoj_demo/stop");
+				RCLCPP_WARN(this->get_logger(), "Stop request received: /servoj_demo/stop");
 			});
 
 		robot_ip_ = this->declare_parameter<std::string>("robot_ip", "192.168.21.10");
@@ -75,31 +75,31 @@ public:
 
 			robot.connectToRobot(ec);
 			if (ec) {
-				RCLCPP_ERROR(this->get_logger(), "连接机器人失败: %s", ec.message().c_str());
+				RCLCPP_ERROR(this->get_logger(), "Failed to connect to the robot: %s", ec.message().c_str());
 				return false;
 			}
 
 			robot.setOperateMode(rokae::OperateMode::automatic, ec);
 			if (ec) {
-				RCLCPP_ERROR(this->get_logger(), "设置自动模式失败: %s", ec.message().c_str());
+				RCLCPP_ERROR(this->get_logger(), "Failed to set automatic mode: %s", ec.message().c_str());
 				return false;
 			}
 
 			robot.setMotionControlMode(rokae::MotionControlMode::RtCommand, ec);
 			if (ec) {
-				RCLCPP_ERROR(this->get_logger(), "切换实时模式失败: %s", ec.message().c_str());
+				RCLCPP_ERROR(this->get_logger(), "Failed to switch to real-time mode: %s", ec.message().c_str());
 				return false;
 			}
 
 			robot.setPowerState(true, ec);
 			if (ec) {
-				RCLCPP_ERROR(this->get_logger(), "上电失败: %s", ec.message().c_str());
+				RCLCPP_ERROR(this->get_logger(), "Power-on failure: %s", ec.message().c_str());
 				return false;
 			}
 
 			auto rt_con = robot.getRtMotionController().lock();
 			if (!rt_con) {
-				RCLCPP_ERROR(this->get_logger(), "获取实时控制器失败");
+				RCLCPP_ERROR(this->get_logger(), "Failed to acquire real-time controller");
 				return false;
 			}
 
@@ -112,25 +112,25 @@ public:
 
 			auto current = robot.jointPos(ec);
 			if (ec) {
-				RCLCPP_ERROR(this->get_logger(), "读取当前关节失败: %s", ec.message().c_str());
+				RCLCPP_ERROR(this->get_logger(), "Failed to read current joint: %s", ec.message().c_str());
 				return false;
 			}
 
-			RCLCPP_INFO(this->get_logger(), "MoveJ 到起始点...");
+			RCLCPP_INFO(this->get_logger(), "MoveJ To the starting point...");
 			rt_con->MoveJ(movej_speed_, current, start_target);
 			if (stop_requested_.load()) {
-				RCLCPP_WARN(this->get_logger(), "检测到停止请求，跳过轨迹循环并执行停机");
+				RCLCPP_WARN(this->get_logger(), "Stop request detected, skip trajectory loop and execute shutdown");
 			}
 
 			const double cycle_s = static_cast<double>(cycle_ms_) / 1000.0;
 			rt_con->setServoJoint(cycle_s, servoj_lookahead_s_, servoj_kp_, ec);
 			if (ec) {
-				RCLCPP_ERROR(this->get_logger(), "启用 ServoJ 失败: %s", ec.message().c_str());
+				RCLCPP_ERROR(this->get_logger(), "Failed to enable ServoJ: %s", ec.message().c_str());
 				return false;
 			}
 
 			rt_con->startMove(rokae::RtControllerMode::jointPosition);
-			RCLCPP_INFO(this->get_logger(), "ServoJ 已启动，开始 20ms 周期轨迹下发");
+			RCLCPP_INFO(this->get_logger(), "ServoJ Started, begin issuing trajectory at 20ms cycle");
 
 			const double omega = 2.0 * kPi / period_s_;
 			const auto loop_start = std::chrono::steady_clock::now();
@@ -155,13 +155,13 @@ public:
 				std::this_thread::sleep_until(next_tick);
 			}
 
-			RCLCPP_INFO(this->get_logger(), "停止 ServoJ 并复位...");
+			RCLCPP_INFO(this->get_logger(), "Stop ServoJ and reset...");
 			rt_con->stopServoJoint();
 			rt_con->stopMove();
 
 			current = robot.jointPos(ec);
 			if (ec) {
-				RCLCPP_WARN(this->get_logger(), "读取当前关节失败，使用起始点作为复位起点");
+				RCLCPP_WARN(this->get_logger(), "Failed to read the current joint, using the starting point as the reset origin");
 				current = start_target;
 			}
 
@@ -172,12 +172,12 @@ public:
 			robot.setMotionControlMode(rokae::MotionControlMode::Idle, ec);
 			robot.setPowerState(false, ec);
 
-			RCLCPP_INFO(this->get_logger(), "ServoJ 示例执行完成");
+			RCLCPP_INFO(this->get_logger(), "ServoJ Example execution completed");
 			run_result_.store(0);
 			return true;
 		}
 		catch (const std::exception& ex) {
-			RCLCPP_ERROR(this->get_logger(), "运行异常: %s", ex.what());
+			RCLCPP_ERROR(this->get_logger(), "Runtime exception: %s", ex.what());
 			run_result_.store(1);
 			return false;
 		}
@@ -210,22 +210,22 @@ private:
 	bool validate_parameters()
 	{
 		if (start_joints_.size() != 6 || reset_joints_.size() != 6 || amplitudes_.size() != 6 || phases_.size() != 6) {
-			RCLCPP_ERROR(this->get_logger(), "start_joints/reset_joints/amplitudes/phases 必须都是 6 维");
+			RCLCPP_ERROR(this->get_logger(), "start_joints/reset_joints/amplitudes/phases They must all be 6-dimensional");
 			return false;
 		}
 
 		if (period_s_ <= 0.0 || duration_s_ <= 0.0 || cycle_ms_ <= 0) {
-			RCLCPP_ERROR(this->get_logger(), "period_s/duration_s/cycle_ms 必须大于 0");
+			RCLCPP_ERROR(this->get_logger(), "period_s/duration_s/cycle_ms must be greater than 0");
 			return false;
 		}
 
 		if (movej_speed_ <= 0.0 || movej_speed_ > 1.0) {
-			RCLCPP_ERROR(this->get_logger(), "movej_speed 必须在 (0,1] 区间");
+			RCLCPP_ERROR(this->get_logger(), "movej_speed must be at (0,1] Interval");
 			return false;
 		}
 
 		if (servoj_lookahead_s_ <= 0.0 || servoj_kp_ <= 0.0) {
-			RCLCPP_ERROR(this->get_logger(), "servoj_lookahead_s/servoj_kp 必须大于 0");
+			RCLCPP_ERROR(this->get_logger(), "servoj_lookahead_s/servoj_kp must be greater than 0");
 			return false;
 		}
 

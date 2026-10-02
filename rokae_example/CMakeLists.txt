@@ -7,7 +7,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # -----------------------------------------------------------------------------
-# 1. 查找依赖项
+# 1. Find dependencies
 # -----------------------------------------------------------------------------
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -27,7 +27,7 @@ find_package(orocos_kdl REQUIRED)
 add_definitions(-DXMATEMODEL_LIB_SUPPORTED)
 
 # -----------------------------------------------------------------------------
-# 2. Rokae SDK 路径（复用 rokae_hardware 中的 SDK，不重复拷贝）
+# 2. Rokae SDK path (reuse the SDK in rokae_hardware; do not copy it)
 # -----------------------------------------------------------------------------
 set(SDK_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../rokae_hardware/sdk/include)
 set(SDK_LIB_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../rokae_hardware/sdk/lib)
@@ -68,10 +68,10 @@ set(COMMON_SDK_LIBS
 )
 
 # -----------------------------------------------------------------------------
-# 3. 可执行目标
+# 3. Executable target
 # -----------------------------------------------------------------------------
 
-# --- cartesian_s_line：MoveIt 笛卡尔空间直线轨迹 ---
+# --- cartesian_s_line: MoveIt Cartesian straight-line path ---
 add_executable(cartesian_s_line src/cartesian_s_line.cpp)
 ament_target_dependencies(cartesian_s_line
   rclcpp
@@ -82,7 +82,7 @@ ament_target_dependencies(cartesian_s_line
   std_msgs
 )
 
-# --- follow_joint_position：MoveIt + FollowJointTrajectory 往复轨迹 ---
+# --- follow_joint_position: MoveIt + FollowJointTrajectory round-trip path ---
 add_executable(follow_joint_position src/follow_joint_position.cpp)
 ament_target_dependencies(follow_joint_position
   rclcpp
@@ -95,7 +95,7 @@ ament_target_dependencies(follow_joint_position
   std_msgs
 )
 
-# --- follow_cart_position：MoveIt 笛卡尔动态正弦跟随 ---
+# --- follow_cart_position: MoveIt Cartesian dynamic sine following ---
 add_executable(follow_cart_position src/follow_cart_position.cpp)
 ament_target_dependencies(follow_cart_position
   rclcpp
@@ -107,7 +107,7 @@ ament_target_dependencies(follow_cart_position
   std_msgs
 )
 
-# --- joint_position_control：MoveIt + FollowJointTrajectory 余弦轨迹 ---
+# --- joint_position_control: MoveIt + FollowJointTrajectory cosine trajectory ---
 add_executable(joint_position_control src/joint_position_control.cpp)
 ament_target_dependencies(joint_position_control
   rclcpp
@@ -120,7 +120,7 @@ ament_target_dependencies(joint_position_control
   std_msgs
 )
 
-# --- joint_s_line：MoveIt 关节空间顺序运动 ---
+# --- joint_s_line: MoveIt sequential joint-space motion ---
 add_executable(joint_s_line src/joint_s_line.cpp)
 ament_target_dependencies(joint_s_line
   rclcpp
@@ -130,7 +130,7 @@ ament_target_dependencies(joint_s_line
   std_msgs
 )
 
-# --- servoj_demo：直接调用 Rokae SDK 的实时 ServoJ 示范 ---
+# --- servoj_demo: real-time ServoJ demo using the Rokae SDK ---
 add_executable(servoj_demo src/servoj_demo.cpp)
 ament_target_dependencies(servoj_demo
   rclcpp
@@ -144,7 +144,7 @@ target_include_directories(servoj_demo PRIVATE
 target_link_libraries(servoj_demo ${COMMON_SDK_LIBS})
 
 # -----------------------------------------------------------------------------
-# 4. 安装
+# 4. Install
 # -----------------------------------------------------------------------------
 install(TARGETS
   cartesian_s_line

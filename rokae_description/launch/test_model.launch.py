@@ -1,6 +1,6 @@
 """
-最小化 Gazebo 验证（阶段 1.3）：仅启动仿真、robot_state_publisher、spawn 模型。
-不含 ros2_control / 关节 GUI。用于检查网格与几何是否正常。
+Minimize Gazebo Verification (Phase 1.3): Launch Simulation Only、robot_state_publisher、spawn Model.
+Not included ros2_control / Joint GUI. Used to check whether the mesh and geometry are normal.。
 """
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, OpaqueFunction
@@ -70,7 +70,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'world',
             default_value='empty.world',
-            description='rokae_gazebo/worlds 下文件名，或绝对路径',
+            description='rokae_gazebo/worlds Enter the file name or absolute path',
         ),
         OpaqueFunction(function=_setup),
     ])

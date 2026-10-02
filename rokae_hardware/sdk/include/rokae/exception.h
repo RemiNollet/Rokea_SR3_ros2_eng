@@ -1,6 +1,6 @@
 ﻿/**
  * @file exception.h
- * @brief 异常类
+ * @brief Exception class
  * @copyright Copyright (C) 2025 ROKAE (Beijing) Technology Co., LTD. All Rights Reserved.
  * Information in this file is the intellectual property of Rokae Technology Co., Ltd,
  * And may contains trade secrets that must be stored and viewed confidentially.
@@ -20,7 +20,7 @@ namespace rokae {
 
 /**
  * @class Exception
- * @brief 运行中异常基类
+ * @brief Runtime Exception Base Class
  */
  class Exception : public std::exception {
   public:
@@ -30,7 +30,7 @@ namespace rokae {
     */
    explicit Exception(const std::string &detail);
    /**
-    * @brief 异常信息
+    * @brief Exception Information
     */
    const char* what() const noexcept override;
 
@@ -40,7 +40,7 @@ namespace rokae {
 
 /**
  * @class NetworkException
- * @brief 网络异常
+ * @brief Network error
  */
  class NetworkException final : public Exception {
   public:
@@ -53,7 +53,7 @@ namespace rokae {
 
 /**
  * @class ArgumentException
- * @brief 参数错误异常
+ * @brief Parameter error exception
  */
  class ArgumentException : public Exception {
   public:
@@ -65,7 +65,7 @@ namespace rokae {
  };
 /**
  * @class ExecutionException
- * @brief 操作执行失败异常
+ * @brief Operation execution failure exception
  */
  class ExecutionException : public Exception {
   public:
@@ -78,7 +78,7 @@ namespace rokae {
 
 /**
  * @class ProtocolException
- * @brief 解析控制器消息失败异常, 可能由于SDK版本与控制器版本不匹配
+ * @brief Failed to parse controller message exception, possibly due to a mismatch between the SDK version and the controller version
  */
  class ProtocolException final : public ExecutionException {
   public:
@@ -91,7 +91,7 @@ namespace rokae {
 
 /**
  * @class InvalidOperationException
- * @brief 操作被控制器拒绝
+ * @brief The operation was denied by the controller
  */
  class InvalidOperationException final : public ExecutionException {
   public:
@@ -104,7 +104,7 @@ namespace rokae {
 
 /**
  * @class RealtimeControlException
- * @brief 实时模式错误
+ * @brief Real-time mode error
  */
  class RealtimeControlException : public Exception {
   public:
@@ -117,7 +117,7 @@ namespace rokae {
 
 /**
  * @class RealtimeMotionException
- * @brief 实时模式运动错误
+ * @brief Real-time mode motion error
  */
  class RealtimeMotionException final : public RealtimeControlException {
   public:
@@ -130,7 +130,7 @@ namespace rokae {
 
 /**
  * @class RealtimeStateException
- * @brief 实时模式状态错误
+ * @brief Real-time mode status error
  */
  class RealtimeStateException final : public RealtimeControlException {
   public:
@@ -142,7 +142,7 @@ namespace rokae {
  };
 /**
  * @class RealtimeParameterException
- * @brief 实时模式参数错误
+ * @brief Real-time mode parameter error
  */
  class RealtimeParameterException final : public RealtimeControlException {
   public:

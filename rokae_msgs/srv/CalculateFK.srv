@@ -1,7 +1,7 @@
-# 正运动学计算服务
-float64[] joint_positions  # 关节角度 [rad]
+# Forward kinematics service
+float64[] joint_positions  # Joint angles [rad]
 
 ---
 bool success
 string message
-float64[] cartesian_pose   # 计算得到的笛卡尔位姿 [x, y, z, rx, ry, rz]
+float64[] cartesian_pose   # Computed Cartesian pose [x, y, z, rx, ry, rz]

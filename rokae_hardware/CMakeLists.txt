@@ -10,7 +10,7 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 
 # -----------------------------------------------------------------------------
-# 1. 查找依赖项（ROS 2 包）
+# 1. Find dependencies (ROS 2 packages)
 # -----------------------------------------------------------------------------
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
@@ -36,11 +36,15 @@ find_package(rokae_msgs REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(controller_manager_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
+find_package(tl_expected REQUIRED)
+if(NOT TARGET tl::expected)
+  add_library(tl::expected ALIAS tl_expected::tl_expected)
+endif()
 
 add_definitions(-DXMATEMODEL_LIB_SUPPORTED)
 
 # -----------------------------------------------------------------------------
-# 生成服务接口（步骤5 核心）
+# Generate service interfaces
 # -----------------------------------------------------------------------------
 rosidl_generate_interfaces(${PROJECT_NAME}
   srv/SceneService.srv
@@ -48,7 +52,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 )
 
 # -----------------------------------------------------------------------------
-# 2. 设置 SDK 路径
+# 2. Set SDK path
 # -----------------------------------------------------------------------------
 set(SDK_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
 set(SDK_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sdk/lib)
@@ -69,7 +73,7 @@ unset(_XCORE_LIB_RELEASES_URL)
 unset(_ROKAe_SDK_VERSION)
 
 # -----------------------------------------------------------------------------
-# 3. 声明可执行文件
+# 3. Declare executable file
 # -----------------------------------------------------------------------------
 
 add_library(rokae_hardware_interface SHARED
@@ -90,7 +94,7 @@ add_executable(stop_motion_demo src/stop_motion_demo.cpp)
 add_executable(scene_service src/scene_service.cpp)
 
 # -----------------------------------------------------------------------------
-# 4. 为每个节点链接依赖
+# 4. Link dependencies for each node
 # -----------------------------------------------------------------------------
 
 ament_target_dependencies(rokae_hardware_interface
@@ -174,7 +178,7 @@ ament_target_dependencies(
 )
 
 # -----------------------------------------------------------------------------
-# 5. 包含目录配置
+# 5. Include directory configuration
 # -----------------------------------------------------------------------------
 
 foreach(target
@@ -198,7 +202,7 @@ foreach(target
 endforeach()
 
 # -----------------------------------------------------------------------------
-# 6. SDK 库配置
+# 6. SDK Library Configuration
 # -----------------------------------------------------------------------------
 link_directories(${SDK_LIB_DIR})
 
@@ -221,7 +225,7 @@ if(EXISTS "${SDK_LIB_DIR}/libxCoreSDK.so")
 endif()
 
 # -----------------------------------------------------------------------------
-# 7. 链接库配置
+# 7. Library Configuration
 # -----------------------------------------------------------------------------
 set(COMMON_SDK_LIBS
   xCoreSDK
@@ -241,7 +245,7 @@ rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typ
 target_link_libraries(scene_service ${cpp_typesupport_target})
 
 # -----------------------------------------------------------------------------
-# 8. 安装配置
+# 8. Installation and Configuration
 # -----------------------------------------------------------------------------
 install(TARGETS
   rokae_hardware_interface

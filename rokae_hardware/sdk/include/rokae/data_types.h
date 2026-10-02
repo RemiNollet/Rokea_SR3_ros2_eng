@@ -1,6 +1,6 @@
 ﻿/**
  * @file data_types.h
- * @brief 定义数据结构和枚举类
+ * @brief Define data structures and enum classes
  * @copyright Copyright (C) 2025 ROKAE (Beijing) Technology Co., LTD. All Rights Reserved.
  * Information in this file is the intellectual property of Rokae Technology Co., Ltd,
  * And may contains trade secrets that must be stored and viewed confidentially.
@@ -28,282 +28,282 @@ namespace rokae {
  /// @endcond
 
 // *********************         Enum class          **********************
-// *********************           枚举类             **********************
+// *********************           Enum class             **********************
 
  /**
   * @enum OperationState
-  * @brief 机器人工作状态
+  * @brief Robot operating status
   */
   enum class OperationState {
-    idle             = 0, ///< 机器人静止
-    jog              = 1, ///< jog状态(未运动)
-    rtControlling    = 2, ///< 实时模式控制中
-    drag             = 3, ///< 拖动已开启
-    rlProgram        = 4, ///< RL工程运行中
-    demo             = 5, ///< Demo演示中
-    dynamicIdentify  = 6, ///< 动力学辨识中
-    frictionIdentify = 7, ///< 摩擦力辨识中
-    loadIdentify     = 8, ///< 负载辨识中
-    moving           = 9, ///< 机器人运动中
-    jogging          = 10, ///< Jog运动中
-    unknown          = Unknown ///< 未知
+    idle             = 0, ///< Robot stationary
+    jog              = 1, ///< jogState(Not exercised)
+    rtControlling    = 2, ///< In real-time mode control
+    drag             = 3, ///< Drag Enabled
+    rlProgram        = 4, ///< RLDuring project operation
+    demo             = 5, ///< DemoIn demonstration
+    dynamicIdentify  = 6, ///< In dynamic identification
+    frictionIdentify = 7, ///< In the process of identifying friction
+    loadIdentify     = 8, ///< Load identification in progress
+    moving           = 9, ///< Robot in motion
+    jogging          = 10, ///< JogIn motion
+    unknown          = Unknown ///< Unknown
   };
 
  /**
   * @enum WorkType
-  * @brief 机型类别
+  * @brief Aircraft Type
   */
  enum class WorkType {
-   industrial,   ///< 工业机器人
-   collaborative ///< 协作机器人
+   industrial,   ///< Industrial robot
+   collaborative ///< Collaborative robot
  };
 
  /**
   * @enum OperateMode
-  * @brief 机器人操作模式
+  * @brief Robot operating mode
   */
  enum class OperateMode {
-   manual    = 0,      ///< 手动
-   automatic = 1,      ///< 自动
-   unknown   = Unknown ///< 未知(发生异常)
+   manual    = 0,      ///< Manual
+   automatic = 1,      ///< Automatic
+   unknown   = Unknown ///< Unknown(An exception occurred)
  };
 
  /**
   * @enum PowerState
-  * @brief 机器人上下电及急停状态
+  * @brief Robot power on/off and emergency stop status
   */
  enum class PowerState {
-   on      = 0, ///< 上电
-   off     = 1, ///< 下电
-   estop   = 2, ///< 急停被按下
-   gstop   = 3, ///< 安全门打开
-   unknown = Unknown ///< 未知(发生异常)
+   on      = 0, ///< Power on
+   off     = 1, ///< Power off
+   estop   = 2, ///< The emergency stop has been pressed
+   gstop   = 3, ///< The safety door is open
+   unknown = Unknown ///< Unknown(An exception occurred)
  };
 
  /**
-  * @brief 位姿坐标系类型
+  * @brief Pose coordinate system type
   */
  enum class CoordinateType {
-   flangeInBase, ///< 法兰相对于基坐标系
-   endInRef      ///< 末端相对于外部坐标系
+   flangeInBase, ///< Flange relative to the base coordinate system
+   endInRef      ///< The end relative to the external coordinate system
  };
 
  /**
   * @enum MotionControlMode
-  * @brief SDK运动控制模式
+  * @brief SDKMotion control mode
   */
  enum class MotionControlMode : unsigned {
-   Idle,       ///< 空闲
-   NrtCommand, ///< 非实时模式执行运动指令
-   NrtRLTask,  ///< 非实时模式运行RL工程
-   RtCommand,  ///< 实时模式控制
+   Idle,       ///< Free
+   NrtCommand, ///< Execute motion commands in non-real-time mode
+   NrtRLTask,  ///< Run RL project in non-real-time mode
+   RtCommand,  ///< Real-time mode control
  };
 
  /**
   * @enum RtControllerMode
-  * @brief 控制器实时控制模式
+  * @brief Controller real-time control mode
   */
  enum class RtControllerMode : unsigned {
-   jointPosition,      ///< 实时轴空间位置控制
-   cartesianPosition,  ///< 实时笛卡尔空间位置控制
-   jointImpedance,     ///< 实时轴空间阻抗控制
-   cartesianImpedance, ///< 实时笛卡尔空间阻抗控制
-   torque              ///< 实时力矩控制
+   jointPosition,      ///< Real-time spatial position control
+   cartesianPosition,  ///< Real-time Cartesian space position control
+   jointImpedance,     ///< Real-time Cartesian Impedance Control
+   cartesianImpedance, ///< Real-time Cartesian Space Impedance Control
+   torque              ///< Real-time torque control
  };
 
  namespace RtSupportedFields {
-  /// 说明：数据名后为数据类型
-  /// ArrayXD = std::array<double, DoF> , DoF为轴数
-  /// Array6D = std::array<double, 6>, 以此类型
-  constexpr const char *jointPos_m = "q_m";   ///< 关节角度 [rad] - ArrayXD
-  constexpr const char *jointPos_c = "q_c";   ///< 指令关节角度 [rad] - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *jointVel_m = "dq_m";  ///< 关节速度 [rad/s]- ArrayXD
-  constexpr const char *jointVel_c = "dq_c";  ///< 指令关节速度 [rad/s] - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *jointAcc_m = "ddq_m"; ///< 关节加速度 [rad/s^2] - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *jointAcc_c = "ddq_c"; ///< 指令关节加速度 [rad/s^2] - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tcpPose_m  = "pos_m"; ///< 末端位姿, 相对于基坐标系, 行优先齐次变换矩阵 - Array16D
-  constexpr const char *tcpPoseAbc_m = "pos_abc_m"; ///< 末端位姿, 相对于基坐标系 [X,Y,Z,Rx,Ry,Rz] - Array6D
-  constexpr const char *tcpPose_c  = "pos_c"; ///< 发送的末端位姿指令, 相对于基坐标系, 行优先齐次变换矩阵 - Array16D。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tcpVel_m   = "pos_vel_m"; ///< 机器人末端速度 - Array6D。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tcpVel_c   = "pos_vel_c"; ///< 指令机器人末端速度 - Array6D。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tcpAcc_m   = "pos_acc_m"; ///< 机器人末端加速度 - Array6D。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tcpAcc_c   = "pos_acc_c"; ///< 指令机器人末端加速度 - Array6D。仅在打开实时模式控制之后数据有效。
-  constexpr const char *exJointPos_m = "ex_q_m"; ///< 外部轴数值 [rad] 导轨[m] - Array6D 实际有效数据个数为外部轴数
-  constexpr const char *exJointVel_m = "ex_dq_m"; ///< 外部轴速度 [rad/s] 导轨[m/s] - Array6D 实际有效数据个数为外部轴数
-  constexpr const char *exMotor_m = "ex_motor_m"; ///< 外部轴电机位置 - Array6D 实际有效数据个数为外部轴数
-  constexpr const char *elbow_m    = "psi_m";     ///< 臂角 [rad] - double
-  constexpr const char *elbow_c    = "psi_c";     ///< 指令臂角 [rad] - double。仅在打开实时模式控制之后数据有效。
-  constexpr const char *elbowVel_c = "psi_vel_c"; ///< 指令臂角速度 [rad/s] - double。仅在打开实时模式控制之后数据有效。
-  constexpr const char *elbowAcc_c = "psi_acc_c"; ///< 指令臂角加速度 [rad/s] - double。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tau_m      = "tau_m";     ///< 关节力矩 [Nm] - ArrayXD
-  constexpr const char *tau_c      = "tau_c";     ///< 指令关节力矩 [Nm] - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tauFiltered_m    = "tau_filtered_m"; ///< 滤波后关节力矩 [Nm] - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tauVel_c         = "tau_vel_c";      ///< 指令力矩微分 [Nm/s] - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tauExt_inBase    = "tau_ext_base";   ///< 基坐标系中外部力矩 [Nm] - Array6D。仅在打开实时模式控制之后数据有效。
-  constexpr const char *tauExt_inStiff   = "tau_ext_stiff";  ///< 力控坐标系中外部力矩 [Nm] - Array6D。仅在打开实时模式控制之后数据有效。
-  constexpr const char *theta_m          = "theta_m";        ///< 电机位置 - ArrayXD
-  constexpr const char *thetaVel_m       = "theta_vel_m";        ///< 电机位置微分 - ArrayXD
-  constexpr const char *motorTau         = "motor_tau";          ///< 电机转矩 - ArrayXD
-  constexpr const char *motorTauFiltered = "motor_tau_filtered"; ///< 滤波后电机转矩 - ArrayXD。仅在打开实时模式控制之后数据有效。
-  constexpr const char *keypads  = "io_keypad";    ///< 末端按键状态 - ArrayXD
+  /// Note: The data type follows the data name
+  /// ArrayXD = std::array<double, DoF> , DoFNumber of axes
+  /// Array6D = std::array<double, 6>, of this type
+  constexpr const char *jointPos_m = "q_m";   ///< Joint angle [rad] - ArrayXD
+  constexpr const char *jointPos_c = "q_c";   ///< Command Joint Angle [rad] - ArrayXD。Data is only valid after turning on real-time mode control。
+  constexpr const char *jointVel_m = "dq_m";  ///< Joint speed [rad/s]- ArrayXD
+  constexpr const char *jointVel_c = "dq_c";  ///< Command Joint Velocity [rad/s] - ArrayXD。Data is only valid after turning on real-time mode control。
+  constexpr const char *jointAcc_m = "ddq_m"; ///< Joint acceleration [rad/s^2] - ArrayXD。Data is only valid after turning on real-time mode control。
+  constexpr const char *jointAcc_c = "ddq_c"; ///< Command joint acceleration [rad/s^2] - ArrayXD。Data is only valid after turning on real-time mode control。
+  constexpr const char *tcpPose_m  = "pos_m"; ///< End pose, relative to the base coordinate system, row-priority homogeneous transformation matrix - Array16D
+  constexpr const char *tcpPoseAbc_m = "pos_abc_m"; ///< End pose, relative to the base coordinate system [X,Y,Z,Rx,Ry,Rz] - Array6D
+  constexpr const char *tcpPose_c  = "pos_c"; ///< The sent end pose command is relative to the base coordinate system, row-major homogeneous transformation matrix - Array16D. The data is only valid after real-time mode control is enabled.。
+  constexpr const char *tcpVel_m   = "pos_vel_m"; ///< Robot end speed - Array6D. Data is valid only after enabling real-time mode control。
+  constexpr const char *tcpVel_c   = "pos_vel_c"; ///< Instruction robot end-effector velocity - Array6D. Data is only valid after enabling real-time mode control。
+  constexpr const char *tcpAcc_m   = "pos_acc_m"; ///< Robot end-effector acceleration - Array6D. Data is valid only after real-time mode control is enabled。
+  constexpr const char *tcpAcc_c   = "pos_acc_c"; ///< Command robot end acceleration - Array6D. Data is only valid after enabling real-time mode control。
+  constexpr const char *exJointPos_m = "ex_q_m"; ///< External shaft value [rad] Guide rail[m] - Array6D The actual number of valid data is equal to the number of external axes
+  constexpr const char *exJointVel_m = "ex_dq_m"; ///< External shaft speed [rad/s] Guide rail[m/s] - Array6D The actual number of valid data is equal to the number of external axes
+  constexpr const char *exMotor_m = "ex_motor_m"; ///< External axis motor position - The actual number of valid data in Array6D is equal to the number of external axes
+  constexpr const char *elbow_m    = "psi_m";     ///< Arm angle [rad] - double
+  constexpr const char *elbow_c    = "psi_c";     ///< Command arm angle [rad] - double。Data is only valid after turning on real-time mode control。
+  constexpr const char *elbowVel_c = "psi_vel_c"; ///< Command arm angular velocity [rad/s] - double。Data is only valid after turning on real-time mode control。
+  constexpr const char *elbowAcc_c = "psi_acc_c"; ///< Command arm angular acceleration [rad/s] - double。Data is only valid after turning on real-time mode control。
+  constexpr const char *tau_m      = "tau_m";     ///< Joint torque [Nm] - ArrayXD
+  constexpr const char *tau_c      = "tau_c";     ///< Command Joint Torque [Nm] - ArrayXD。Data is only valid after turning on real-time mode control。
+  constexpr const char *tauFiltered_m    = "tau_filtered_m"; ///< Filtered joint torque [Nm] - ArrayXD。Data is only valid after turning on real-time mode control。
+  constexpr const char *tauVel_c         = "tau_vel_c";      ///< Command Torque Differential [Nm/s] - ArrayXD。Data is only valid after turning on real-time mode control。
+  constexpr const char *tauExt_inBase    = "tau_ext_base";   ///< External torque in the base coordinate system [Nm] - Array6D。Data is only valid after turning on real-time mode control。
+  constexpr const char *tauExt_inStiff   = "tau_ext_stiff";  ///< External Torque in the Force-Control Coordinate System [Nm] - Array6D。Data is only valid after turning on real-time mode control。
+  constexpr const char *theta_m          = "theta_m";        ///< Motor position - ArrayXD
+  constexpr const char *thetaVel_m       = "theta_vel_m";        ///< Motor position differentiation - ArrayXD
+  constexpr const char *motorTau         = "motor_tau";          ///< Motor torque - ArrayXD
+  constexpr const char *motorTauFiltered = "motor_tau_filtered"; ///< Filtered motor torque - ArrayXD. Data is only valid after enabling real-time mode control.。
+  constexpr const char *keypads  = "io_keypad";    ///< End key status - ArrayXD
  }
 
  /**
   * @enum StopLevel
-  * @brief 机器人停止运动等级
+  * @brief Robot Stop Motion Level
   */
  enum class StopLevel {
-   stop0, ///< 快速停止机器人运动后断电
-   stop1, ///< 规划停止机器人运动后断电, 停在原始路径上
-   stop2,  ///< 规划停止机器人运动后不断电, 停在原始路径上
-   suppleStop ///< 柔顺停止，仅适用于协作机型
+   stop0, ///< Power off after quickly stopping the robot's movement
+   stop1, ///< Plan to cut off power after the robot stops moving, stopping on the original path
+   stop2,  ///< Plan to stop the robot's movement without cutting off power, stopping on the original path
+   suppleStop ///< Soft stop, only applicable to collaborative models
  };
 
  /**
   * @struct DragParameter
-  * @brief 机器人拖动模式参数, 包括拖动类型和空间
+  * @brief Robot drag mode parameters, including drag type and space
   */
  struct DragParameter {
    /**
-    * @brief 拖动空间
+    * @brief Drag space
     */
    enum Space {
-     jointSpace     = 0, ///< 轴空间
-     cartesianSpace = 1  ///< 笛卡尔空间
+     jointSpace     = 0, ///< Axial space
+     cartesianSpace = 1  ///< Cartesian space
    };
    /**
-    * @brief 拖动类型
+    * @brief Drag Type
     */
    enum Type {
-     translationOnly = 0, ///< 仅平移
-     rotationOnly    = 1, ///< 仅旋转
-     freely          = 2  ///< 自由拖拽
+     translationOnly = 0, ///< Translate only
+     rotationOnly    = 1, ///< Rotate only
+     freely          = 2  ///< Free drag
    };
  };
 
  /**
   * @enum FrameType
-  * @brief 坐标系类型
+  * @brief Coordinate System Type
   */
  enum class FrameType {
-   world  = 0, ///< 世界坐标系
-   base   = 1, ///< 基坐标系
-   flange = 2, ///< 法兰坐标系
-   tool   = 3, ///< 工具坐标系
-   wobj   = 4, ///< 工件坐标系
-   path   = 5, ///< 路径坐标系
-   rail   = 6  ///< 导轨基坐标系
+   world  = 0, ///< World Coordinate System
+   base   = 1, ///< Base coordinate system
+   flange = 2, ///< Flange coordinate system
+   tool   = 3, ///< Tool Coordinate System
+   wobj   = 4, ///< Workpiece coordinate system
+   path   = 5, ///< Path Coordinate System
+   rail   = 6  ///< Guide Rail Base Coordinate System
  };
 
  /**
   * @struct JogOpt
-  * @brief Jog选项: 坐标系
+  * @brief JogOption: Coordinate System
   */
  struct JogOpt {
    /**
-    * @brief Jog坐标系
+    * @brief JogCoordinate system
     */
    enum Space {
-     world = 0, ///< 世界坐标系
-     flange, ///< 法兰坐标系
-     baseFrame, ///< 基坐标系
-     toolFrame, ///< 工具坐标系
-     wobjFrame, ///< 工件坐标系
-     jointSpace, ///< 轴空间
-     singularityAvoidMode, ///< 奇异规避模式，适用于工业六轴, xMateCR和xMateSR机型，规避方法是锁定4轴
-     baseParallelMode ///< 平行基座模式，仅适用于xMateCR和xMateSR机型
+     world = 0, ///< World Coordinate System
+     flange, ///< Flange coordinate system
+     baseFrame, ///< Base coordinate system
+     toolFrame, ///< Tool Coordinate System
+     wobjFrame, ///< Workpiece coordinate system
+     jointSpace, ///< Axial space
+     singularityAvoidMode, ///< Singular avoidance mode, suitable for industrial six-axis, xMateCR, and xMateSR models, the avoidance method is locking the fourth axis
+     baseParallelMode ///< Parallel base mode, only applicable to xMateCR and xMateSR models
    };
  };
 
  /**
   * @struct xPanelOpt
-  * @brief xPanel配置: 对外供电模式
+  * @brief xPanelConfiguration: External Power Supply Mode
   */
  struct xPanelOpt {
    /**
-    * @brief 供电模式
+    * @brief Power supply mode
     */
    enum Vout {
-     off,       ///< 不输出
-     reserve,   ///< 保留
-     supply12v, ///< 输出12V
-     supply24v, ///< 输出24V
+     off,       ///< Do not output
+     reserve,   ///< Reserve
+     supply12v, ///< Output12V
+     supply24v, ///< Output24V
    };
  };
 
  /**
-  * @brief 奇异规避方式
+  * @brief Strange Avoidance Method
   */
  enum class AvoidSingularityMethod {
-   lockAxis4, ///< 四轴锁定
-   wrist,     ///< 牺牲姿态
-   jointWay   ///< 轴空间短轨迹插补
+   lockAxis4, ///< Four-axis locking
+   wrist,     ///< sacrificial posture
+   jointWay   ///< Axis space short trajectory interpolation
  };
 
  /**
-  * @brief 事件信息 - map类型
+  * @brief Event Information - map type
   */
  typedef std::unordered_map<std::string, std::any> EventInfo;
  /**
-  * @brief 事件回调函数类型
+  * @brief Event callback function type
   */
  typedef std::function<void(const EventInfo &)> EventCallback;
 
  /**
-  * @brief 事件类型
+  * @brief Event Type
   */
  enum class Event {
-   moveExecution, ///< 非实时运动指令执行信息
-   safety,        ///< 安全 (是否碰撞)
-   rlExecution,   ///< RL执行状态
-   logReporter    ///< 控制器日志上报
+   moveExecution, ///< Non-real-time motion command execution information
+   safety,        ///< Safety (Is there a collision)
+   rlExecution,   ///< RLExecution Status
+   logReporter    ///< Controller log reporting
  };
 
  /**
-  * @brief 事件信息字段
+  * @brief Event Information Field
   */
  namespace EventInfoKey {
   /**
-   * 非实时运动指令执行信息
+   * Non-real-time motion command execution information
    */
   namespace MoveExecution {
-   constexpr const char *ID = "cmdID";     ///< 路径ID, 对应调用moveAppend()时第二个参数; 类型string
-   constexpr const char *ReachTarget = "reachTarget"; ///< 轨迹是否到达目标点; 类型bool
-   constexpr const char *WaypointIndex = "wayPointIndex"; ///< 当前正在执行的轨迹目标点下标, 从0开始; 类型int
-   constexpr const char *Error = "error"; ///< 错误码, 运动指令执行前或执行中的错误; 类型error_code
-   constexpr const char *Remark = "remark"; ///< 其它执行信息，目前包括目标点距离过近的告警信息; 类型string
-   constexpr const char *CustomInfo = "customInfo"; ///< 用户自定义信息, 对应NrtCommand::customInfo; 类型string
+   constexpr const char *ID = "cmdID";     ///< Path ID, corresponding callmoveAppend()the second parameter; Typestring
+   constexpr const char *ReachTarget = "reachTarget"; ///< Has the trajectory reached the target point?; Typebool
+   constexpr const char *WaypointIndex = "wayPointIndex"; ///< The index of the currently executing trajectory target point, starting from 0; Typeint
+   constexpr const char *Error = "error"; ///< Error code, error before or during execution of motion command; Typeerror_code
+   constexpr const char *Remark = "remark"; ///< Other execution information, currently including alert information for targets that are too close; Typestring
+   constexpr const char *CustomInfo = "customInfo"; ///< User-defined information, corresponding toNrtCommand::customInfo; Typestring
   }
   /**
-   * @brief 安全相关
+   * @brief Safety-related
    */
   namespace Safety {
-   constexpr const char *Collided = "collided"; ///< 是否碰撞; 类型bool, true-发生碰撞 | false-未发生或已恢复
+   constexpr const char *Collided = "collided"; ///< Is there a collision; Type bool, true - collision occurred | false-Not occurred or restored
   }
 
   /**
-   * @brief RL程序执行状态
+   * @brief RLProgram execution status
    */
   namespace RlExecution {
-   constexpr const char *TaskName = "taskName"; ///< 执行的任务名称; 类型string
-   constexpr const char *LookaheadLine = "lookaheadLine"; ///< 前瞻行号; 类型int
-   constexpr const char *LookaheadFile = "lookaheadFile"; ///< 前瞻到的文件名; 类型string
-   constexpr const char *ExecuteLine = "executeLine"; ///< 执行行号; 类型int
-   constexpr const char *ExecuteFile = "executeFile"; ///< 正在执行的文件名; 类型string
+   constexpr const char *TaskName = "taskName"; ///< Name of the task being executed; Typestring
+   constexpr const char *LookaheadLine = "lookaheadLine"; ///< Forward-looking Bank Code; Typeint
+   constexpr const char *LookaheadFile = "lookaheadFile"; ///< Previewed file name; Typestring
+   constexpr const char *ExecuteLine = "executeLine"; ///< Execution line number; Typeint
+   constexpr const char *ExecuteFile = "executeFile"; ///< The name of the file being executed; Typestring
   }
 
   /**
-   * @brief 控制器日志上报
+   * @brief Controller log reporting
    */
   namespace LogReporter {
-   constexpr const char* Ecode = "ecode"; ///< 控制器日志错误码; 类型int
-   constexpr const char* Edetail = "edetail"; ///< 控制器日志报错信息; 类型string
+   constexpr const char* Ecode = "ecode"; ///< Controller Log Error Code; Typeint
+   constexpr const char* Edetail = "edetail"; ///< Controller log error information; Typestring
   }
 
  }
 
 // *******************          Data types            ********************
-// *******************           数据结构              ********************
+// *******************           Data Structure              ********************
 #if defined(XCORESDK_SUPPRESS_DLL_WARNING)
 #pragma warning(push)
 #pragma warning(disable : 4251)
@@ -311,7 +311,7 @@ namespace rokae {
 
  /**
   * @class Frame
-  * @brief 坐标系
+  * @brief Coordinate system
   */
  class XCORE_API Frame {
   public:
@@ -321,75 +321,75 @@ namespace rokae {
    Frame() = default;
 
    /**
-    * @brief 初始化trans & rpy
-    * @param trans 平移量
-    * @param rpy 欧拉角XYZ
+    * @brief Initializationtrans & rpy
+    * @param trans Translation amount
+    * @param rpy Euler anglesXYZ
     */
    Frame(const std::array<double, 3> &trans, const std::array<double, 3> &rpy);
 
    /**
-    * @brief 初始化trans & rpy
+    * @brief Initializationtrans & rpy
     * @param frame [X, Y, Z, Rx, Ry, Rz]
     */
    Frame(const std::array<double, 6> &frame);
 
    /**
-    * @brief 初始化pos
-    * @param matrix 4*4变换矩阵
+    * @brief Initializationpos
+    * @param matrix 4*4Transformation Matrix
     */
    Frame(const std::array<double,16> &matrix);
 
    /**
-    * @brief 初始化
-    * @param values 长度为6时初始化trans & rot = [X, Y, Z, Rx, Ry, Rz];
-    *               长度为16时初始化pos
-    * @throw ArgumentException 初始化列表长度错误
+    * @brief Initialization
+    * @param values Initialize when the length is 6trans & rot = [X, Y, Z, Rx, Ry, Rz];
+    *               Initialize when the length is 16pos
+    * @throw ArgumentException Initialization list length error
     */
    Frame(std::initializer_list<double> values);
 
-   std::array<double, 3> trans {}; ///< 平移量 [X, Y, Z], 单位:米
-   std::array<double, 3> rpy {};   ///< 欧拉角 [Rx, Ry, Rz], 单位:弧度
-   std::array<double, 16> pos {};  ///< 行优先齐次变换矩阵。只用于实时模式笛卡尔位置/阻抗控制。
+   std::array<double, 3> trans {}; ///< Translation amount [X, Y, Z], Unit: meter
+   std::array<double, 3> rpy {};   ///< Euler angles [Rx, Ry, Rz], Unit: Radian
+   std::array<double, 16> pos {};  ///< Row-priority homogeneous transformation matrix. Only used for real-time mode Cartesian position/impedance control.。
  };
 
  /**
   * @class Finishable
-  * @brief 一次运动循环是否结束
+  * @brief Has one exercise cycle ended?
   */
  class XCORE_API Finishable {
   public:
    /**
-    * @brief 是否已设置运动循环结束
+    * @brief Has the exercise loop ended?
     */
    uint8_t isFinished() const;
 
    /**
-    * @brief 标识运动循环已结束
+    * @brief Indicates that the exercise cycle has ended
     */
    void setFinished();
 
   protected:
-   uint8_t finished { 0 }; ///< 用于判断是否结束一个运动循环
+   uint8_t finished { 0 }; ///< Used to determine whether to end a movement loop
  };
 
  /**
   * @class CartesianPosition
-  * @brief 笛卡尔点位
+  * @brief Descartes point
   */
  class XCORE_API CartesianPosition : public Frame, public Finishable {
   public:
    using Frame::Frame;
    /**
-    * @brief 偏移
+    * @brief Offset
     */
    struct Offset {
      /**
-      * @brief 偏移类型
+      * @brief Offset type
       */
      enum Type {
-       none,   ///< 无偏移
-       offs,   ///< 相对工件坐标系偏移
-       relTool ///< 相对工具坐标系偏移
+       none,   ///< No offset
+       offs,   ///< Offset Relative to Workpiece Coordinate System
+       relTool ///< Offset Relative to Tool Coordinate System
      };
 
      /**
@@ -402,19 +402,19 @@ namespace rokae {
       */
      Offset(Type type, const Frame &frame);
 
-     Type type { none }; ///< 偏移类型
-     Frame frame { };    ///< 相对于指定工具/工件坐标系的偏移
+     Type type { none }; ///< Offset type
+     Frame frame { };    ///< Offset relative to the specified tool/workpiece coordinate system
    };
 
-   double elbow { 0 };      ///< 臂角, 适用于7轴机器人, 单位：弧度
-   bool hasElbow { false }; ///< 是否有臂角
-   std::vector<int> confData; ///< 轴配置数据，长度为8: [cf1, cf2, cf3, cf4, cf5, cf6, cf7, cfx]
-   std::vector<double> external; ///< 外部关节数值 单位:弧度|米。导轨单位米
+   double elbow { 0 };      ///< Arm angle, suitable for 7-axis robots, unit: radians
+   bool hasElbow { false }; ///< Is there a humeral angle?
+   std::vector<int> confData; ///< Axle configuration data, length is8: [cf1, cf2, cf3, cf4, cf5, cf6, cf7, cfx]
+   std::vector<double> external; ///< External joint values Unit: radians|Meter. Rail unit: meter
  };
 
  /**
   * @class JointPosition
-  * @brief 关节点位
+  * @brief Joint position
   */
  class XCORE_API JointPosition : public Finishable {
   public:
@@ -423,30 +423,30 @@ namespace rokae {
     */
    JointPosition() = default;
    /**
-    * @param joints 长度应与机器人轴数一致. 外部关节可缺省
+    * @param joints The length should match the number of robot axes. External joints can be optional.
     */
    JointPosition(std::initializer_list<double> joints);
 
    /**
     * @brief constructor
-    * @param joints 轴角度
+    * @param joints Shaft angle
     */
    JointPosition(std::vector<double> joints);
 
    /**
-    * @brief 初始化joints
-    * @param n 长度, 应和机型轴数匹配
-    * @param v 初始值
+    * @brief Initializationjoints
+    * @param n The length should match the number of axes of the machine model
+    * @param v Initial value
     */
    JointPosition(size_t n, double v = 0);
 
-   std::vector<double> joints; ///< 关节角度值, 单位:弧度
-   std::vector<double> external; ///< 外部关节数值, 单位:弧度|米。导轨单位米
+   std::vector<double> joints; ///< Joint angle value, unit: radians
+   std::vector<double> external; ///< External joint values, unit: radian|Meter. Rail unit: meter
  };
 
  /**
   * @class Torque
-  * @brief 关节扭矩，不包含重力和摩擦力
+  * @brief Joint torque, excluding gravity and friction
   */
  class XCORE_API Torque : public Finishable {
   public:
@@ -454,96 +454,96 @@ namespace rokae {
 
    /**
     * @brief constructor
-    * @param tau 力矩指令值
+    * @param tau Torque command value
     */
    Torque(std::vector<double> tau);
 
    /**
     * @brief constructor
-    * @param tau 力矩指令值
+    * @param tau Torque command value
     */
    Torque(std::initializer_list<double> tau);
 
    /**
-    * @brief 初始化tau
-    * @param n 长度, 应和机型轴数匹配
-    * @param v 初始值
+    * @brief Initializationtau
+    * @param n The length should match the number of axes of the machine model
+    * @param v Initial value
     */
    Torque(size_t n, double v = 0);
 
-   std::vector<double> tau; ///< 期望关节扭矩，单位: Nm
+   std::vector<double> tau; ///< Expected joint torque, unit: Nm
  };
 
  /**
    * @class Load
-   * @brief 负载信息
+   * @brief Load Information
    */
  class XCORE_API Load {
   public:
    Load() = default;
    /**
-    * @param m 质量
-    * @param cog 质心
-    * @param inertia 惯量
+    * @param m Quality
+    * @param cog center of mass
+    * @param inertia Inertia
     */
    Load(double m, const std::array<double, 3> &cog, const std::array<double, 3> &inertia);
 
-   double mass { 0 };  ///< 负载质量, 单位:千克
-   std::array<double, 3> cog {};     ///< 质心 [x, y, z], 单位:米
-   std::array<double, 3> inertia {}; ///< 惯量 [ix, iy, iz], 单位:千克·平方米
+   double mass { 0 };  ///< Load mass, unit: kilogram
+   std::array<double, 3> cog {};     ///< center of mass [x, y, z], Unit: meter
+   std::array<double, 3> inertia {}; ///< Inertia [ix, iy, iz], Unit: kilogram·square meter
  };
 
  /**
   * @class Toolset
-  * @brief 工具工件组信息, 根据一对工具工件的坐标、负载、机器人手持设置计算得出
-  * @note 并不显式区分手持/外部. 该类可这样理解: 如手持工具, 则负载和机器人末端坐标系是工具的, 参考坐标系则是工件的；
-  *       反之, 如果手持工件, 则负载和末端坐标系来自工件, 参考坐标系来自工具
+  * @brief Tool-workpiece group information, calculated based on the coordinates, load, and robot handheld settings of a pair of tools and workpieces
+  * @note Does not explicitly distinguish between handheld/external. This can be understood as follows: for handheld tools, the load and the robot's end coordinate system belong to the tool, while the reference coordinate system belongs to the workpiece.；
+  *       Conversely, if holding the workpiece, the load and end coordinate system come from the workpiece, and the reference coordinate system comes from the tool.
   */
  class XCORE_API Toolset {
   public:
    Toolset() = default;
    /**
-    * @param load 负载信息
-    * @param end 末端坐标系
-    * @param ref 参考坐标系
+    * @param load Load Information
+    * @param end End coordinate system
+    * @param ref Reference coordinate system
     */
    Toolset(const Load &load, const Frame &end, const Frame &ref);
 
-   Load load {}; ///< 机器人末端手持负载
-   Frame end {}; ///< 机器人末端坐标系相对法兰坐标系转换
-   Frame ref {}; ///< 机器人参考坐标系相对世界坐标系转换
+   Load load {}; ///< Robot end-effector payload
+   Frame end {}; ///< Transformation from the robot end-effector coordinate system to the flange coordinate system
+   Frame ref {}; ///< Coordinate transformation from robot reference frame to world coordinate system
  };
 
  /**
   * @class FrameCalibrationResult
-  * @brief 坐标系标定结果
+  * @brief Coordinate System Calibration Results
   */
  class XCORE_API FrameCalibrationResult {
   public:
    FrameCalibrationResult() = default;
-   Frame frame {};  ///< 标定结果
-   std::array<double, 3> errors {}; ///< 样本点与TCP标定值的偏差, 依次为最小值,平均值,最大值, 单位m
+   Frame frame {};  ///< Calibration Results
+   std::array<double, 3> errors {}; ///< The deviation of sample points from the TCP calibration value, listed as minimum, average, and maximum, unitm
  };
 
  /**
   * @class RLProjectInfo
-  * @brief RL工程信息
+  * @brief RLProject Information
   */
  class XCORE_API RLProjectInfo {
   public:
    /**
     * @brief constructor
-    * @param name RL工程名
+    * @param name RLProject Name
     */
    explicit RLProjectInfo(std::string name);
 
-   std::string name; ///< 工程名称
-   std::vector<std::string> taskList; ///< 任务名称列表
+   std::string name; ///< Project Name
+   std::vector<std::string> taskList; ///< Task Name List
  };
 
  /**
   * @class WorkToolInfo
-  * @brief 工具/工件信息。工件的坐标系已相对其用户坐标系变换
+  * @brief Tool/Workpiece information. The coordinate system of the workpiece has been transformed relative to its user coordinate system.
   */
  class XCORE_API WorkToolInfo {
   public:
@@ -551,41 +551,41 @@ namespace rokae {
 
    /**
     * @brief constructor
-    * @param name 名称
-    * @param isHeld 是否机器人手持
-    * @param posture 位姿
-    * @param load 负载
+    * @param name Name
+    * @param isHeld Is it handheld by a robot?
+    * @param posture Pose
+    * @param load Load
     */
    WorkToolInfo(std::string name, bool isHeld, const Frame &posture, const Load &load);
 
-   std::string name {};  ///< 名称
-   std::string alias {}; ///< 描述
-   bool robotHeld {};    ///< 是否机器人手持
-   Frame pos {};         ///< 位姿
-   Load load {};         ///< 负载
+   std::string name {};  ///< Name
+   std::string alias {}; ///< Description
+   bool robotHeld {};    ///< Is it handheld by a robot?
+   Frame pos {};         ///< Pose
+   Load load {};         ///< Load
  };
 
  /**
   * @class NrtCommand
-  * @brief 非实时运动指令
+  * @brief Non-real-time motion command
   */
  class XCORE_API NrtCommand {
   public:
 
    /**
-    * @brief 机器人末端最大线速度, 单位mm/s
+    * @brief Maximum linear velocity of the robot end, unitmm/s
     * @see setDefaultSpeed()
     */
    double speed { USE_DEFAULT };
 
    /**
-    * @brief 转弯区半径大小，单位mm
+    * @brief Turning area radius size, unitmm
     * @see setDefaultZone()
     */
    double zone { USE_DEFAULT };
 
    /**
-    * @brief 自定义信息，可在运动信息反馈中返回出来
+    * @brief Custom information, can be returned in the exercise information feedback
     */
    std::string customInfo {};
 
@@ -593,8 +593,8 @@ namespace rokae {
 
    /**
     * @brief constructor
-    * @param speed 本条指令的速度, 单位mm/s
-    * @param zone 本条指令的转弯区, 单位mm
+    * @param speed The speed of this instruction, in unitsmm/s
+    * @param zone Turning area of this instruction, unitmm
     */
    NrtCommand(double speed, double zone);
 
@@ -603,191 +603,191 @@ namespace rokae {
 
  /**
   * @class MoveAbsJCommand
-  * @brief 运动指令 - 轴运动MoveAbsJ
+  * @brief Motion Command - Axis MovementMoveAbsJ
   */
  class XCORE_API MoveAbsJCommand : public NrtCommand{
   public:
    /**
-    * @param target 目标轴角度
-    * @param speed 末端线速度, 单位mm/s, 关节速度根据末端线速度大小划分几个区间，详见setDefaultSpeed()
-    * @param zone 转弯区, 单位mm
+    * @param target Target shaft angle
+    * @param speed End effector linear speed, unit mm/s, joint speeds are divided into several intervals based on the magnitude of the end effector linear speed, see detailssetDefaultSpeed()
+    * @param zone Turning area, unitmm
     */
    MoveAbsJCommand(JointPosition target, double speed = USE_DEFAULT, double zone = USE_DEFAULT);
 
-   JointPosition target; ///< 目标关节点位
+   JointPosition target; ///< Target checkpoint position
 
-   double jointSpeed { USE_DEFAULT }; ///< 关节速度百分比，范围[0, 1]。大于等于0时生效；小于0时仍使用speed计算出的关节速度
+   double jointSpeed { USE_DEFAULT }; ///< Joint speed percentage, range[0, 1]。Effective when greater than or equal to 0; when less than 0, the joint speed calculated by speed is still used
  };
 
  /**
-  * @brief 运动停留指令。可插在两条运动指令之间，前一条运动到位后，等待一段时间，再执行下一条。
-  * 该指令执行完不会有信息反馈
+  * @brief Motion dwell command. Can be inserted between two motion commands; after the previous motion has reached its position, it waits for a period of time before executing the next one.。
+  * There will be no information feedback after this command is executed.
   */
  class XCORE_API MoveWaitCommand : public NrtCommand {
   public:
 
    /**
     * @brief Constructor
-    * @param duration 时长
+    * @param duration Duration
     */
    MoveWaitCommand(std::chrono::steady_clock::duration duration);
 
-   std::chrono::steady_clock::duration duration_; ///< 停留时长, 最小有效时长1ms
+   std::chrono::steady_clock::duration duration_; ///< Duration of stay, minimum effective duration1ms
  };
 
  /**
   * @class MoveJCommand
-  * @brief 运动指令 - 轴运动MoveJ
+  * @brief Motion Command - Axis MovementMoveJ
   */
  class XCORE_API MoveJCommand : public NrtCommand {
   public:
    /**
-    * @param target 目标笛卡尔点位
-    * @param speed 末端线速度, 单位mm/s, 关节速度根据末端线速度大小划分几个区间，详见setDefaultSpeed()
-    * @param zone 转弯区, 单位mm
+    * @param target Target Cartesian Point
+    * @param speed End effector linear speed, unit mm/s, joint speeds are divided into several intervals based on the magnitude of the end effector linear speed, see detailssetDefaultSpeed()
+    * @param zone Turning area, unitmm
     */
    MoveJCommand(CartesianPosition target, double speed = USE_DEFAULT, double zone = USE_DEFAULT);
 
-   CartesianPosition target; ///< 目标笛卡尔点位
-   CartesianPosition::Offset offset; ///< 偏移选项
+   CartesianPosition target; ///< Target Cartesian Point
+   CartesianPosition::Offset offset; ///< Offset Options
 
-   double jointSpeed { USE_DEFAULT }; ///< 关节速度百分比，范围[0, 1]。大于等于0时生效；小于0时仍使用speed计算出的关节速度
+   double jointSpeed { USE_DEFAULT }; ///< Joint speed percentage, range[0, 1]。Effective when greater than or equal to 0; when less than 0, the joint speed calculated by speed is still used
  };
 
  /**
   * @class MoveLCommand
-  * @brief 运动指令 - 末端直线轨迹MoveL
+  * @brief Motion Command - End-Effector Linear TrajectoryMoveL
   */
  class XCORE_API MoveLCommand : public NrtCommand {
   public:
    /**
-    * @param target 目标笛卡尔点位
-    * @param speed 末端线速度, 单位mm/s
-    * @param zone 转弯区, 单位mm
+    * @param target Target Cartesian Point
+    * @param speed End point linear velocity, unitmm/s
+    * @param zone Turning area, unitmm
     */
    MoveLCommand(CartesianPosition target, double speed = USE_DEFAULT, double zone = USE_DEFAULT);
 
-   CartesianPosition target; ///< 目标笛卡尔点位
-   CartesianPosition::Offset offset; ///< 偏移选项
+   CartesianPosition target; ///< Target Cartesian Point
+   CartesianPosition::Offset offset; ///< Offset Options
 
-   double rotSpeed { USE_DEFAULT }; ///< 空间旋转速度，单位rad/s。大于等于0时生效；小于0时旋转速度默认为200°/s
+   double rotSpeed { USE_DEFAULT }; ///< Spatial rotation speed, in units of rad/s. Effective when greater than or equal to 0; when less than 0, the rotation speed defaults to200°/s
  };
 
  /**
   * @class MoveCCommand
-  * @brief 运动指令 - 圆弧轨迹MoveC
+  * @brief Motion Command - Arc TrajectoryMoveC
   */
  class XCORE_API MoveCCommand : public NrtCommand {
   public:
    /**
-    * @param target 目标点
-    * @param aux 辅助点
-    * @param speed 末端线速度, 单位mm/s, 关节速度根据末端线速度大小划分几个区间，详见setDefaultSpeed()
-    * @param zone 转弯区, 单位mm
+    * @param target Target point
+    * @param aux Reference point
+    * @param speed End effector linear speed, unit mm/s, joint speeds are divided into several intervals based on the magnitude of the end effector linear speed, see detailssetDefaultSpeed()
+    * @param zone Turning area, unitmm
     */
    MoveCCommand(CartesianPosition target, CartesianPosition aux, double speed = USE_DEFAULT, double zone = USE_DEFAULT);
 
-   CartesianPosition target; ///< 目标笛卡尔点位
-   CartesianPosition::Offset targetOffset; ///< 偏移选项
-   CartesianPosition aux;    ///< 辅助点位
-   CartesianPosition::Offset auxOffset; ///< 偏移选项
+   CartesianPosition target; ///< Target Cartesian Point
+   CartesianPosition::Offset targetOffset; ///< Offset Options
+   CartesianPosition aux;    ///< Auxiliary Point
+   CartesianPosition::Offset auxOffset; ///< Offset Options
 
-   double rotSpeed { USE_DEFAULT }; ///< 空间旋转速度，单位rad/s。大于等于0时生效；小于0时旋转速度默认为200°/s
+   double rotSpeed { USE_DEFAULT }; ///< Spatial rotation speed, in units of rad/s. Effective when greater than or equal to 0; when less than 0, the rotation speed defaults to200°/s
  };
 
  /**
-  * @brief 运动指令 - 全圆轨迹MoveCF
+  * @brief Motion Command - Full Circle TrajectoryMoveCF
   */
  class XCORE_API MoveCFCommand : public MoveCCommand{
   public:
    /**
-    * @brief 全圆姿态旋转类型
+    * @brief Full-sphere attitude rotation type
     */
    enum RotType {
-     constPose, ///< 不变姿态
-     rotAxis,   ///< 动轴旋转
-     fixedAxis  ///< 定轴旋转
+     constPose, ///< Unchanging posture
+     rotAxis,   ///< Rotating shaft
+     fixedAxis  ///< Fixed-axis rotation
    };
 
    /**
-    * @param target 目标点
-    * @param aux 辅助点
-    * @param speed 末端线速度, 单位mm/s
-    * @param zone 转弯区, 单位mm
-    * @param angle 执行角度, 单位弧度
+    * @param target Target point
+    * @param aux Reference point
+    * @param speed End point linear velocity, unitmm/s
+    * @param zone Turning area, unitmm
+    * @param angle Execution angle, unit: radian
     */
    MoveCFCommand(const CartesianPosition &target, const CartesianPosition &aux, double angle, double speed = USE_DEFAULT, double zone = USE_DEFAULT);
 
-   double angle { 0 }; ///< 全圆执行角度, 单位: 弧度
-   RotType rotType { constPose }; ///< 全圆姿态旋转模式
+   double angle { 0 }; ///< Full circle execution angle, unit: radian
+   RotType rotType { constPose }; ///< Full-circle attitude rotation mode
  };
 
  /**
-  * @brief 运动指令 - 螺旋线轨迹MoveSP
+  * @brief Motion Command - Spiral TrajectoryMoveSP
   */
  class XCORE_API MoveSPCommand : public NrtCommand {
   public:
    /**
-    * @param target 终点姿态
-    * @param r0 初始半径 [m]
-    * @param rStep 每旋转单位角度，半径的变化 [m/rad]
-    * @param angle 合计旋转角度 [rad]
-    * @param dir 旋转方向, true - clockwise | false - anticlockwise
-    * @param speed 末端线速度, 单位mm/s
+    * @param target Final posture
+    * @param r0 Initial radius [m]
+    * @param rStep Change in radius per unit angle of rotation [m/rad]
+    * @param angle Total rotation angle [rad]
+    * @param dir Rotation direction, true - clockwise | false - anticlockwise
+    * @param speed End point linear velocity, unitmm/s
     */
    MoveSPCommand(const CartesianPosition &target, double r0, double rStep, double angle, bool dir, double speed = USE_DEFAULT);
 
-   CartesianPosition target; ///< 终点笛卡尔点位, 只使用点位的rpy来指定终点的姿态
-   CartesianPosition::Offset targetOffset; ///< 偏移选项
-   double radius { 0 };      ///< 初始半径, 单位: 米
-   double radius_step { 0 }; ///< 每旋转单位角度，半径的变化，单位: 米/弧度
-   double angle { 0 };       ///< 合计旋转角度, 单位: 弧度
-   bool direction;           ///< 旋转方向, true - 顺时针 | false - 逆时针
+   CartesianPosition target; ///< End Cartesian point, use only the point's RPY to specify the end pose
+   CartesianPosition::Offset targetOffset; ///< Offset Options
+   double radius { 0 };      ///< Initial radius, unit: meters
+   double radius_step { 0 }; ///< Change in radius per unit angle of rotation, unit: meters/radian
+   double angle { 0 };       ///< Total rotation angle, unit: radian
+   bool direction;           ///< Rotation direction, true - clockwise | false - counterclockwise
 
-   double rotSpeed { USE_DEFAULT }; ///< 空间旋转速度，单位rad/s。大于等于0时生效；小于0时旋转速度默认为200°/s
+   double rotSpeed { USE_DEFAULT }; ///< Spatial rotation speed, in units of rad/s. Effective when greater than or equal to 0; when less than 0, the rotation speed defaults to200°/s
  };
 
  /**
   * @class LogInfo
-  * @brief 控制器日志信息
+  * @brief Controller log information
   */
  class XCORE_API LogInfo {
   public:
    /**
-    * @brief 日志等级
+    * @brief Log Level
     */
    enum Level {
-     info,    ///< 通知
-     warning, ///< 警告
-     error    ///< 错误
+     info,    ///< Notice
+     warning, ///< Warning
+     error    ///< Error
    };
 
    /**
     * @brief constructor
-    * @param id 日志ID号
-    * @param ts 日期时间
-    * @param ct 内容
-    * @param r 修复办法
+    * @param id Log ID
+    * @param ts Date and Time
+    * @param ct Content
+    * @param r Fixing method
     */
    LogInfo(int id, std::string ts, std::string ct, std::string r);
 
-   const int id;                ///< 日志ID号
-   const std::string timestamp; ///< 日期及时间
-   const std::string content;   ///< 日志内容
-   const std::string repair;    ///< 修复办法
+   const int id;                ///< Log ID
+   const std::string timestamp; ///< Date and Time
+   const std::string content;   ///< Log content
+   const std::string repair;    ///< Fixing method
  };
 
  /**
-  * @brief 末端按键状态
+  * @brief End key status
   */
  struct KeyPadState {
-   bool key1_state = false; ///< CR1号
-   bool key2_state = false; ///< CR2号
-   bool key3_state = false; ///< CR3号
-   bool key4_state = false; ///< CR4号
-   bool key5_state = false; ///< CR5号
-   bool key6_state = false; ///< CR6号
-   bool key7_state = false; ///< CR7号
+   bool key1_state = false; ///< CR1number
+   bool key2_state = false; ///< CR2number
+   bool key3_state = false; ///< CR3number
+   bool key4_state = false; ///< CR4number
+   bool key5_state = false; ///< CR5number
+   bool key6_state = false; ///< CR6number
+   bool key7_state = false; ///< CR7number
  };
 
 #if defined(XCORESDK_SUPPRESS_DLL_WARNING)

@@ -15,7 +15,7 @@
 #include <realtime_tools/realtime_publisher.h>
 
 // ROS control interface
-//hardware_interface 接口
+// hardware_interface
 #include "hardware_interface/system_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
@@ -26,7 +26,7 @@
 
 // #include "hardware_interface/joint_command_handle.hpp"
 // #include "hardware_interface/joint_state_handle.hpp"
-//控制器接口
+// Controller interface
 
 
 #include <iostream>
@@ -37,7 +37,7 @@
 #include "stdlib.h"
 
 
-namespace rokae_hardware    //用override虚函数对基类SystemInterface的成员函数进行复写，否则子类RokaeHardwareInterface中的方法可能无法被ROS2中接口SystemInterface调用（）
+namespace rokae_hardware    // Override SystemInterface virtuals so ROS 2 can call RokaeHardwareInterface methods
 {
     template <unsigned short DoF>
     class RokaeHardwareInterface : public hardware_interface::SystemInterface
@@ -56,7 +56,7 @@ namespace rokae_hardware    //用override虚函数对基类SystemInterface的成
 
         
 
-        // ROS 2接口，使用rclcpp::Node::SharedPtr
+        // ROS 2 lifecycle interface using rclcpp::Node::SharedPtr
         hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
         hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
         hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
@@ -67,7 +67,7 @@ namespace rokae_hardware    //用override虚函数对基类SystemInterface的成
         hardware_interface::return_type read(const rclcpp::Time & time, const rclcpp::Duration & period) override;
         hardware_interface::return_type write(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
-        // 其它功能可以通过自定义函数实现
+        // Other functions can be implemented through custom functions
         bool initParameters(std::shared_ptr<rclcpp::Node> node);
         bool initRobot();
         bool waitForValidState(size_t max_attempts = 50, int delay_ms = 100);
@@ -101,8 +101,8 @@ namespace rokae_hardware    //用override虚函数对基类SystemInterface的成
         std::string local_ip_;
         unsigned rt_network_tolerance_ = 80;
         std::error_code ec;
-        //const → 值不可变 ；static → 所有对象共享一份
-        static const size_t num_joints_ = DoF;   //const 表示这个变量是常量，初始化之后不能再修改，且只能初始化一次；static 表示这是一个 类变量，而不是某个对象独有的。没有 static 的话，就是 实例成员变量，每个对象都会单独保存一份 num_joints_。但轴数其实是由模板参数 DoF 决定的，不需要重复存储，所以用 static
+        //const → Immutable ；static → All objects share one copy
+        static const size_t num_joints_ = DoF;   // const: immutable after init; static: shared class member. Axis count comes from template DoF, so it is not stored per instance.
         //size_t num_joints_ = DoF;
         //size_t num_joints_ = 7;
         std::vector<std::string> joint_names_;
@@ -123,9 +123,9 @@ namespace rokae_hardware    //用override虚函数对基类SystemInterface的成
         std::vector<double> joint_velocity_command_;
         std::vector<double> joint_torque_command_;
         std::vector<double> internal_joint_position_command_;
-         // 自定义失败标志位，需要外部调用者（比如控制器状态回调）设置
+         // Custom failure flag, needs to be set by an external caller (such as a controller status callback)
         std::atomic<bool> controller_aborted_{false};
-        // 当前关节状态和命令缓存
+        // Current joint status and command buffer
         std::vector<double> state_positions_;
         std::vector<double> cmd_positions_;
 
@@ -136,12 +136,12 @@ namespace rokae_hardware    //用override虚函数对基类SystemInterface的成
         bool controllers_initialized_ = false;
 
         long times_loop_ = 0;
-        /// setServoJoint(ServoJ_T, ...) 的 ServoJ_T（秒），应与 ros2_control 实际 write 周期一致；默认 0.004≈250Hz
+        /// ServoJ_T for setServoJoint(ServoJ_T, ...), in seconds; should match the ros2_control write period. Default 0.004 ≈ 250 Hz.
         double servo_joint_period_s_ = 0.004;
-        /// 为 true 时才调用 SDK setServoJoint；部分固件会报 invalid data key(-258)，默认 false 与旧版 .bak 行为一致
+        /// If true, call SDK setServoJoint. Some firmware reports invalid data key(-258); default false matches the older .bak behavior.
         bool enable_servoj_ = false;
 
-        // ROS 2 Publisher示例
+        // ROS 2 publisher example
         // rclcpp::Publisher<rokae_msgs::msg::ExternalForce>::SharedPtr ext_force_in_stiff_pub_;
         // rclcpp::Publisher<rokae_msgs::msg::ExternalForce>::SharedPtr ext_force_in_pub_;
 

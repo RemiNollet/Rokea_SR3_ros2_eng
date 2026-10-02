@@ -8,7 +8,7 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_srvs/srv/trigger.hpp>
-#include "rokae_msgs/srv/move_j.hpp"   //报错去install中找对应的名字
+#include "rokae_msgs/srv/move_j.hpp"   //Check the corresponding name in install when an error occurs
 #include "rokae_msgs/srv/move_c.hpp"
 #include "rokae_msgs/srv/move_l.hpp"
 #include "rokae_msgs/srv/get_robot_info.hpp"
@@ -31,16 +31,16 @@ using sensor_msgs::msg::JointState;
 rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub;
 rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr cartesian_pose_pub;
 
-// 创建机器人对象
-// rokae::xMateRobot robot; ////六轴
-rokae::xMateErProRobot robot; //// 七轴
+// Create a robot object
+// rokae::xMateRobot robot; ////Six-axis
+rokae::xMateErProRobot robot; //// Seven-axis
 std::error_code ec;
 // const std::string local_ip = "192.168.2.100";
 // const std::string robot_ip = "192.168.2.160";
 
 
 
-//  基础信息查询服务
+//  Basic Information Inquiry Service
 bool get_robot_info_callback(
     const std::shared_ptr<rokae_msgs::srv::GetRobotInfo::Request> /*request*/,
     std::shared_ptr<rokae_msgs::srv::GetRobotInfo::Response> response)
@@ -61,13 +61,13 @@ bool get_robot_info_callback(
         response->type = robot_info.type;
         response->sdk_version = robot.sdkVersion();
         
-        // // 获取当前关节状态
+        // // Get current joint state
         // auto joint_pos = robot.jointPos(ec);
         // if (!ec) {
         //     response->joint_positions.assign(joint_pos.begin(), joint_pos.end());
         // }
         
-        // // 获取当前笛卡尔位姿
+        // // Get current Cartesian pose
         // auto posture = robot.posture(CoordinateType::flangeInBase, ec);
         // if (!ec) {
         //     response->cartesian_pose.assign(posture.begin(), posture.end());
@@ -91,14 +91,14 @@ bool stop_rt_callback(
 
         auto state_before = robot.operationState(local_ec);
         if (local_ec) {
-            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "读取初始operationState失败: %s", local_ec.message().c_str());
+            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "Failed to read initial operationState: %s", local_ec.message().c_str());
             local_ec.clear();
         }
 
         if (state_before == rokae::OperationState::rlProgram) {
             robot.pauseProject(local_ec);
             if (local_ec) {
-                RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "pauseProject失败: %s", local_ec.message().c_str());
+                RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "pauseProjectFailure: %s", local_ec.message().c_str());
                 local_ec.clear();
             }
         }
@@ -109,35 +109,35 @@ bool stop_rt_callback(
                 try {
                     rt_con->stopServoJoint();
                 } catch (const std::exception &e) {
-                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopServoJoint异常: %s", e.what());
+                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopServoJointAbnormal: %s", e.what());
                 } catch (...) {
-                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopServoJoint未知异常");
+                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopServoJointUnknown exception");
                 }
 
                 try {
                     rt_con->stopMove();
                 } catch (const std::exception &e) {
-                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopMove异常: %s", e.what());
+                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopMoveAbnormal: %s", e.what());
                 } catch (...) {
-                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopMove未知异常");
+                    RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "stopMoveUnknown exception");
                 }
             }
         } catch (const std::exception &e) {
-            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "获取RtMotionController异常: %s", e.what());
+            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "Exception occurred while obtaining RtMotionController: %s", e.what());
         } catch (...) {
-            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "获取RtMotionController未知异常");
+            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "An unknown exception occurred while obtaining RtMotionController");
         }
 
         robot.stop(local_ec);
         if (local_ec) {
-            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "robot.stop失败: %s", local_ec.message().c_str());
+            RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), "robot.stopFailure: %s", local_ec.message().c_str());
             local_ec.clear();
         }
 
         auto state_after = robot.operationState(local_ec);
         if (local_ec) {
             response->success = false;
-            response->message = "stop_rt执行后读取operationState失败: " + local_ec.message();
+            response->message = "stop_rtFailed to read operationState after execution: " + local_ec.message();
             return true;
         }
 
@@ -151,16 +151,16 @@ bool stop_rt_callback(
         return true;
     } catch (const std::exception &e) {
         response->success = false;
-        response->message = std::string("stop_rt异常: ") + e.what();
+        response->message = std::string("stop_rtAbnormal: ") + e.what();
         return true;
     } catch (...) {
         response->success = false;
-        response->message = "stop_rt未知异常";
+        response->message = "stop_rtUnknown exception";
         return true;
     }
 }
 
-// 开启关闭拖动    需要提前设置超级管理员
+// Enable/disable dragging requires prior setting of a super administrator
 bool drag_control_callback(
     const std::shared_ptr<rokae_msgs::srv::DragCon::Request> request,
     std::shared_ptr<rokae_msgs::srv::DragCon::Response> response)
@@ -168,7 +168,7 @@ bool drag_control_callback(
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"), "drag_control called");
         if (request->command == "on") {  
-            // 开启拖拽模式
+            // Enable drag mode
             
             robot.setOperateMode(rokae::OperateMode::manual, ec);
             robot.setPowerState(false, ec);
@@ -179,7 +179,7 @@ bool drag_control_callback(
 
             
         } else if (request->command == "off") {
-            // 关闭拖拽模式
+            // Turn off drag mode
             
             robot.disableDrag(ec);
             RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"), "Drag disabled successfully");
@@ -187,7 +187,7 @@ bool drag_control_callback(
             response->message = "Drag disabled successfully";
             
         } else {
-            // 命令无效
+            // The command is invalid
             RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), 
                        "Invalid command: %s. Expected 'on' or 'off'", 
                        request->command.c_str());
@@ -201,13 +201,13 @@ bool drag_control_callback(
         return false;
     }
     
-    return true;  // 服务调用完成
+    return true;  // Service call completed
 }
 
 
 
-// 正逆运动学计算服务  弧度
-//confdata参数--新输入/hmi设置-运动参数-高级设置-默认conf关闭
+// Forward and inverse kinematics calculation service  Radians
+//confdata parameters -- New input / HMI settings - Motion parameters - Advanced settings - Default conf off
 bool calculate_ik_callback(
     const std::shared_ptr<rokae_msgs::srv::CalculateIK::Request> request,
     std::shared_ptr<rokae_msgs::srv::CalculateIK::Response> response)
@@ -215,14 +215,14 @@ bool calculate_ik_callback(
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"), "calculate_ik called");
         
-        // 检查输入大小
+        // Check input size
         if ( request->target_pose.size() != 7) {
             response->success = false;
             response->message = "Target pose must have 7 elements [x, y, z, rx, ry, rz, elbow]";
             return false;
         }
         
-        // 创建CartesianPosition对象
+        // Create a CartesianPosition object
         CartesianPosition target_cartesian;
         target_cartesian.hasElbow = true;
         target_cartesian.trans[0] = request->target_pose[0];
@@ -285,7 +285,7 @@ bool calculate_fk_callback(
         response->success = true;
         response->message = "FK calculated successfully";
         
-        // 使用循环添加元素   使用fk_result.pos结果为0
+        // Use a loop to add elements   Usefk_result.posThe result is0
         response->cartesian_pose.clear();
         for (int i = 0; i < 3; i++) {
             response->cartesian_pose.push_back(fk_result.trans[i]);
@@ -308,7 +308,7 @@ bool calculate_fk_callback(
 
 
 
-// Jog控制服务  参考JogCon.srv
+// JogControl Service ReferenceJogCon.srv
 bool jog_control_callback(
     const std::shared_ptr<rokae_msgs::srv::JogCon::Request> request,
     std::shared_ptr<rokae_msgs::srv::JogCon::Response> response)
@@ -316,7 +316,7 @@ bool jog_control_callback(
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"), "jog_control called");
         
-        // 参数验证
+        // Parameter validation
         if (request->rate < 0.01 || request->rate > 1.0) {
             response->success = false;
             response->message = "Rate must be between 0.01 and 1.0";
@@ -329,7 +329,7 @@ bool jog_control_callback(
             return true;
         }
         
-        // 映射坐标系类型
+        // Type of mapping coordinate system
         JogOpt::Space jog_space;
         
         if (request->space == "world") {
@@ -354,7 +354,7 @@ bool jog_control_callback(
             return true;
         }
         
-        // 切换到手动模式并上电
+        // Switch to manual mode and power on
         robot.setMotionControlMode(rokae::MotionControlMode::NrtCommand, ec);
         robot.setOperateMode(rokae::OperateMode::manual, ec);
         robot.setPowerState(true, ec);
@@ -364,7 +364,7 @@ bool jog_control_callback(
         //            request->space.c_str(), request->rate, request->step, 
         //            request->index, request->direction ? "positive" : "negative");
         
-        // 启动Jog（单步模式）
+        // Start Jog (Step Mode)）
         robot.startJog(jog_space, request->rate, request->step, request->index, request->direction, ec);
         if (ec) {
             response->success = false;
@@ -373,13 +373,13 @@ bool jog_control_callback(
         }
         
 
-        float wait_time =10.0; //先随机给10s等待
+        float wait_time =10.0; //First randomly wait for 10 seconds
         // RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"), 
         //            "Waiting %.2f seconds for jog to complete", wait_time);
         
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(wait_time * 1000)));
         
-        // 停止Jog（必须调用）
+        // Stop Jog (must be called）
         robot.stop(ec);
         if (ec) {
             response->success = false;
@@ -391,7 +391,7 @@ bool jog_control_callback(
         response->message = "Jog completed successfully";
         
     } catch (const std::exception& e) {
-        // 确保在异常情况下也停止Jog
+        // Ensure to stop even in exceptional situationsJog
         robot.stop(ec);
         
         response->success = false;
@@ -399,13 +399,13 @@ bool jog_control_callback(
         return false;
     }
     
-    return true;  // 服务调用完成
+    return true;  // Service call completed
 }
 
 
-// /*IO相关*/
+// /*IORelated*/
 
-//  获取数字输出状态  hmi中通信--系统IO设置
+//  Get digital output status  Communication in HMI -- System IO settings
 bool get_do_callback(
     const std::shared_ptr<rokae_msgs::srv::GetDO::Request> request,
     std::shared_ptr<rokae_msgs::srv::GetDO::Response> response)
@@ -437,7 +437,7 @@ bool get_do_callback(
     return true;
 }
 
-//DO信号不存在或为系统输出
+//DOThe signal does not exist or is a system output
 bool set_do_callback(
     const std::shared_ptr<rokae_msgs::srv::SetDO::Request> request,
     std::shared_ptr<rokae_msgs::srv::SetDO::Response> response)
@@ -469,7 +469,7 @@ bool set_do_callback(
 }
 
 
-// 设置数字输入信号
+// Set digital input signal
 bool set_di_callback(
     const std::shared_ptr<rokae_msgs::srv::SetDI::Request> request,
     std::shared_ptr<rokae_msgs::srv::SetDI::Response> response)
@@ -494,7 +494,7 @@ bool set_di_callback(
         response->message = "DI set to " + std::string(request->state ? "ON" : "OFF");
         
     } catch (const std::exception& e) {
-        // 确保在异常情况下也尝试关闭仿真模式
+        // Ensure that simulation mode is attempted to be turned off even in exceptional cases
         robot.setSimulationMode(false, ec);
         
         response->success = false;
@@ -506,7 +506,7 @@ bool set_di_callback(
 }
 
 
-// 获取数字输入状态
+// Get digital input status
 bool get_di_callback(
     const std::shared_ptr<rokae_msgs::srv::GetDI::Request> request,
     std::shared_ptr<rokae_msgs::srv::GetDI::Response> response)
@@ -533,7 +533,7 @@ bool get_di_callback(
 
         
     } catch (const std::exception& e) {
-        // 确保在异常情况下也尝试关闭仿真模式
+        // Ensure that simulation mode is attempted to be turned off even in exceptional cases
         robot.setSimulationMode(false, ec);
         response->success = false;
         response->message = e.what();
@@ -551,10 +551,10 @@ bool read_register_callback(
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"), "read_register called");
         
-        // 清除之前的错误码
+        // Clear previous error codes
         ec.clear();
         
-        // 根据数据类型分支处理
+        // Handle according to data type branches
         if (request->data_type == "float") {
             if (request->read_all) {
                 std::vector<float> values;
@@ -630,10 +630,10 @@ bool write_register_callback(
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"), "write_register called");
         
-        // 清除之前的错误码
+        // Clear previous error codes
         ec.clear();
         
-        // 根据数据类型分支处理
+        // Handle according to data type branches
         if (request->data_type == "float") {
             if (request->write_all) {
                 robot.writeRegister(request->register_name, 0, request->float_values, ec);
@@ -650,7 +650,7 @@ bool write_register_callback(
         }
         else if (request->data_type == "int16") {
             if (request->write_all) {
-                // 逐个写入，避免机器人库的fmt错误
+                // Write one by one to avoid fmt errors in the robot library
                 for (size_t i = 0; i < request->int16_values.size(); i++) {
                     int int_value = static_cast<int>(request->int16_values[i]);
                     robot.writeRegister(request->register_name, i, int_value, ec);
@@ -686,16 +686,16 @@ bool movej_callback(
 {
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"),"movej called");
-        // 1. 获取目标关节角度
+        // 1. Obtain target joint angle
         std::array<double, 7> target_joints;
         for (int i = 0; i < 7; i++) {
             target_joints[i] = request->joint_positions[i];
         }
         
-        // 2. 获取速度参数
+        // 2. Get speed parameters
         double velocity = static_cast<double>(request->velocity);
         
-        // 3. 获取当前关节角度
+        // 3. Get current joint angle
         std::array<double, 7> current_joints = robot.jointPos(ec);
         if (ec) {
             response->success = false;
@@ -703,7 +703,7 @@ bool movej_callback(
             return false;
         }
         
-        // 4. 获取实时控制器
+        // 4. Obtain real-time controller
         robot.setOperateMode(rokae::OperateMode::automatic, ec);
         robot.setMotionControlMode(MotionControlMode::RtCommand, ec);
         robot.setPowerState(true, ec);
@@ -714,19 +714,19 @@ bool movej_callback(
             return false;
         }
         
-        // 5. 执行MoveJ
+        // 5. ExecuteMoveJ
         rtCon->MoveJ(velocity, current_joints, target_joints);
         // rtCon->startMove(RtControllerMode::jointPosition);
         
-        // 6. 设置成功响应
+        // 6. Setting successful response
         response->success = true;
         response->message = "movej has been executed";
         
-        //7.关闭rci
+        //7.Closerci
         // rtCon->stopMove();
         
     } catch (const std::exception& e) {
-        // 8. 设置错误响应
+        // 8. Set error response
         response->success = false;
         response->message = e.what();
         return false;
@@ -735,17 +735,17 @@ bool movej_callback(
     return true;
 }
 
-// 接受末端相对的偏移量  笛卡尔可能出现逆解失败
+// Accept the relative offset of the end; the Cartesian solution may fail to solve inversely
 bool movel_callback(
     const std::shared_ptr<rokae_msgs::srv::MoveL::Request> request,
     std::shared_ptr<rokae_msgs::srv::MoveL::Response> response)
 {
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"),"movel called");
-        // 1. 获取速度参数
+        // 1. Get speed parameters
         double velocity = static_cast<double>(request->velocity);
         
-        // 2. 获取当前末端位姿
+        // 2. Get the current end pose
         CartesianPosition start;
         Utils::postureToTransArray(robot.posture(rokae::CoordinateType::flangeInBase, ec), start.pos);
         if (ec) {
@@ -754,24 +754,24 @@ bool movel_callback(
             return false;
         }
         
-        // 3. 分解起始位姿为旋转矩阵和平移向量
+        // 3. Decompose the initial pose into a rotation matrix and a translation vector
         Eigen::Matrix3d rot_start;
         Eigen::Vector3d trans_start;
         Utils::arrayToTransMatrix(start.pos, rot_start, trans_start);
         
-        // 4. 创建目标平移向量（应用相对偏移）
+        // 4. Create target translation vector (apply relative offset)）
         Eigen::Vector3d trans_end = trans_start;
         
-        // 使用 offset 而不是 target_position
-        trans_end[0] += request->offset[0];  // X轴偏移
-        trans_end[1] += request->offset[1];  // Y轴偏移
-        trans_end[2] += request->offset[2];  // Z轴偏移
-        
-        // 5. 创建目标位姿（保持起始点的旋转姿态）
+        // Use offset instead of target_position
+        trans_end[0] += request->offset[0];  // XShaft offset
+        trans_end[1] += request->offset[1];  // YShaft offset
+        trans_end[2] += request->offset[2];  // ZAxis Offset
+
+// 5. Create the target pose (maintain the rotation posture of the starting point)）
         CartesianPosition target;
         Utils::transMatrixToArray(rot_start, trans_end, target.pos);
         
-        // 6. 获取实时控制器
+        // 6. Obtain real-time controller
         robot.setOperateMode(rokae::OperateMode::automatic, ec);
         robot.setMotionControlMode(MotionControlMode::RtCommand, ec);
         robot.setPowerState(true, ec);
@@ -782,19 +782,19 @@ bool movel_callback(
             return false;
         }
         
-        // 7. 执行MoveL
+        // 7. ExecuteMoveL
         rtCon->MoveL(velocity, start, target);
         // rtCon->startMove(RtControllerMode::cartesianPosition);
         
-        // 8. 设置成功响应
+        // 8. Setting successful response
         response->success = true;
         response->message = "movel has been executed";
 
-        // 9. 关闭rci
+        // 9. Closerci
         // rtCon->stopMove();
         
     } catch (const std::exception& e) {
-        // 10. 设置错误响应
+        // 10. Set error response
         response->success = false;
         response->message = e.what();
         return false;
@@ -803,17 +803,17 @@ bool movel_callback(
     return true;
 }
 
-//x-y平面 z偏移设0
+//x-yPlane Z Offset Setting0
 bool movec_callback(
     const std::shared_ptr<rokae_msgs::srv::MoveC::Request> request,
     std::shared_ptr<rokae_msgs::srv::MoveC::Response> response)
 {
     try {
         RCLCPP_INFO(rclcpp::get_logger("rokae_driver7"),"movec called");
-        // 1. 获取速度参数
+        // 1. Get speed parameters
         double velocity = static_cast<double>(request->velocity);
         
-        // 2. 获取当前末端位姿作为起点
+        // 2. Obtain the current end pose as the starting point
         CartesianPosition start;
         Utils::postureToTransArray(robot.posture(rokae::CoordinateType::flangeInBase, ec), start.pos);
         if (ec) {
@@ -822,38 +822,38 @@ bool movec_callback(
             return false;
         }
         
-        // 3. 分解起始位姿为旋转矩阵和平移向量
+        // 3. Decompose the initial pose into a rotation matrix and a translation vector
         Eigen::Matrix3d rot_start;
         Eigen::Vector3d trans_start, trans_aux, trans_end;
         Utils::arrayToTransMatrix(start.pos, rot_start, trans_start);
         
-        // 4. 计算辅助点和终点的平移向量（应用相对偏移）
+        // 4. Calculate the translation vector for the auxiliary point and the endpoint (apply relative offset)）
         trans_aux = trans_start;
         trans_end = trans_start;
         
-        // 检查偏移量数组大小
+        // Check the size of the offset array
         if (request->aux_offset.size() < 3 || request->target_offset.size() < 3) {
             response->success = false;
             response->message = "Offset arrays must have at least 3 elements";
             return false;
         }
         
-        // 应用辅助点偏移
-        trans_aux[0] += request->aux_offset[0];  // X轴偏移
-        trans_aux[1] += request->aux_offset[1];  // Y轴偏移
-        trans_aux[2] += request->aux_offset[2];  // Z轴偏移
+        // Apply auxiliary point offset
+        trans_aux[0] += request->aux_offset[0];  // XShaft offset
+        trans_aux[1] += request->aux_offset[1];  // YShaft offset
+        trans_aux[2] += request->aux_offset[2];  // ZAxis offset
         
-        // 应用终点偏移
-        trans_end[0] += request->target_offset[0];  // X轴偏移
-        trans_end[1] += request->target_offset[1];  // Y轴偏移
-        trans_end[2] += request->target_offset[2];  // Z轴偏移
-        
-        // 5. 创建辅助点和终点位姿（保持起始点的旋转姿态）
+        // Apply endpoint offset
+        trans_end[0] += request->target_offset[0];  // XShaft offset
+        trans_end[1] += request->target_offset[1];  // YShaft offset
+        trans_end[2] += request->target_offset[2];  // ZAxis Offset
+
+// 5. Create auxiliary points and end pose (maintain the rotation posture of the starting point)）
         CartesianPosition aux, target;
         Utils::transMatrixToArray(rot_start, trans_aux, aux.pos);
         Utils::transMatrixToArray(rot_start, trans_end, target.pos);
         
-        // 6. 获取实时控制器
+        // 6. Obtain real-time controller
         robot.setOperateMode(rokae::OperateMode::automatic, ec);
         robot.setMotionControlMode(MotionControlMode::RtCommand, ec);
         robot.setPowerState(true, ec);
@@ -864,19 +864,19 @@ bool movec_callback(
             return false;
         }
         
-        // 7. 执行MoveC
+        // 7. ExecuteMoveC
         rtCon->MoveC(velocity, start, aux, target);
         // rtCon->startMove(RtControllerMode::cartesianPosition);
         
-        // 8. 设置成功响应
+        // 8. Setting successful response
         response->success = true;
         response->message = "movec has been executed";
 
-        // 9.关闭rci
+        // 9.Closerci
         // rtCon->stopMove();
         
     } catch (const std::exception& e) {
-        // 10. 设置错误响应
+        // 10. Set error response
         response->success = false;
         response->message = e.what();
         return false;
@@ -890,23 +890,23 @@ bool movec_callback(
 
 void joint_position_callback(const rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr& joint_state_pub) {
     try {
-        // 1. 从Rokae机器人获取关节位置 (可能包含外部轴)
+        // 1. Get joint positions from Rokae robot (May contain external shafts)
         auto joint_positions = robot.jointPos(ec);
         auto joint_velocity = robot.jointVel(ec);
         auto joint_jointTorque = robot.jointTorque(ec);
         
         if (ec) {
             RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), 
-                       "获取关节位置失败: %s", ec.message().c_str());
+                       "Failed to get joint position: %s", ec.message().c_str());
             return;
         }
         
-        // 2. 创建并填充ROS关节状态消息
+        // 2. Create and populate ROS joint state message
         JointState joint_state_msg;
-        joint_state_msg.header.stamp = rclcpp::Clock().now(); // 设置时间戳
-        // joint_state_msg.header.frame_id = "base_link"; // 参考坐标系
-        
-        // 3. 设置关节名称 (根据你的机器人模型调整)
+        joint_state_msg.header.stamp = rclcpp::Clock().now(); // Set timestamp
+        // joint_state_msg.header.frame_id = "base_link"; // Reference coordinate system
+
+// 3. Set joint names (Adjust according to your robot model)
         for (size_t i = 0; i < joint_positions.size(); ++i) {
             joint_state_msg.name.push_back("joint" + std::to_string(i + 1));
             joint_state_msg.position.push_back(joint_positions[i]);
@@ -914,45 +914,45 @@ void joint_position_callback(const rclcpp::Publisher<sensor_msgs::msg::JointStat
             joint_state_msg.effort.push_back(joint_jointTorque[i]);
         }
  
-        // 4. 发布消息
+        // 4. Post a message
         if (joint_state_pub) {
             joint_state_pub->publish(joint_state_msg);
         }
         
     } catch (const std::exception& e) {
         RCLCPP_ERROR(rclcpp::get_logger("rokae_driver7"), 
-                    "发布关节状态时出错: %s", e.what());
+                    "Error occurred while publishing joint state: %s", e.what());
     }
 }
 
 
 void cartesian_pose_callback(const rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr& cartesian_pose_pub) {
     try {
-        // 1. 从Rokae机器人获取法兰相对于基坐标系的位姿
+        // 1. Obtain the pose of the flange relative to the base coordinate system from the Rokae robot
         std::array<double, 6> pose_array = robot.posture(rokae::CoordinateType::flangeInBase, ec);
         
         if (ec) {
             RCLCPP_WARN(rclcpp::get_logger("rokae_driver7"), 
-                       "获取笛卡尔位姿失败: %s", ec.message().c_str());
+                       "Failed to obtain Cartesian pose: %s", ec.message().c_str());
             return;
         }
         
-        // 2. 创建并填充ROS笛卡尔位姿消息
+        // 2. Create and populate a ROS Cartesian pose message
         geometry_msgs::msg::PoseStamped pose_msg;
         pose_msg.header.stamp = rclcpp::Clock().now();
-        pose_msg.header.frame_id = "base_link"; // 设置参考坐标系为基坐标系
-        
-        // 3. 设置位置 (x, y, z) - 单位：米
+        pose_msg.header.frame_id = "base_link"; // Set the reference coordinate system as the base coordinate system
+
+// 3. Set the position (x, y, z) - Unit: meter
         pose_msg.pose.position.x = pose_array[0];
         pose_msg.pose.position.y = pose_array[1];
         pose_msg.pose.position.z = pose_array[2];
         
-        // 4. 设置姿态 (rx, ry, rz 转换为四元数)
+        // 4. Set posture (rx, ry, rz Convert to quaternion)
         double rx = pose_array[3]; // roll
         double ry = pose_array[4]; // pitch
         double rz = pose_array[5]; // yaw
         
-        // 使用ROS的tf2进行转换
+        // Using ROS tf2 for transformations
         tf2::Quaternion q;
         q.setRPY(rx, ry, rz);
         
@@ -961,14 +961,14 @@ void cartesian_pose_callback(const rclcpp::Publisher<geometry_msgs::msg::PoseSta
         pose_msg.pose.orientation.z = q.z();
         pose_msg.pose.orientation.w = q.w();
         
-        // 5. 发布消息
+        // 5. Post a message
         if (cartesian_pose_pub) {
             cartesian_pose_pub->publish(pose_msg);
         }
         
     } catch (const std::exception& e) {
         RCLCPP_ERROR(rclcpp::get_logger("rokae_driver7"), 
-                    "发布笛卡尔位姿时出错: %s", e.what());
+                    "Error occurred while publishing Cartesian pose: %s", e.what());
     }
 }
 
@@ -977,22 +977,22 @@ void state_monitor_worker(rclcpp::Node::SharedPtr node) {
     while (rclcpp::ok()) {
         // std::error_code ec;
         
-        // 1. 连接检查与数据获取
+        // 1. Connection Check and Data Retrieval
         // auto joint_positions = robot.jointPos(ec);
         robot.jointPos(ec);
         
         if (ec) {
-            // 连接或读取失败
+            // Connection or read failed
             RCLCPP_ERROR_THROTTLE(node->get_logger(), *node->get_clock(), 2000,
-                                 "连接错误或获取数据失败: %s", ec.message().c_str());
+                                 "Connection error or failed to retrieve data: %s", ec.message().c_str());
         } else {
-            // 2. 连接正常，执行发布回调（目前只有关节状态）
+            // 2. Connection is normal, executing publish callback (currently only joint states)）
             joint_position_callback(joint_state_pub);
             cartesian_pose_callback(cartesian_pose_pub);
         }
         
-        // 3. 控制频率
-        std::this_thread::sleep_for(std::chrono::milliseconds(10)); //100hz发布一次
+        // 3. Control frequency
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); //100hzPost once
     }
 }
 
@@ -1006,14 +1006,14 @@ int main(int argc , char** argv){
     std::string robot_ip = node->get_parameter("robot_ip").as_string();
     std::string local_ip = node->get_parameter("local_ip").as_string();
 
-    // 连接到机器人
+    // Connect to the robot
     try {
         robot.connectToRobot(robot_ip ,local_ip);
     } catch (const std::exception &e) {
         RCLCPP_ERROR(rclcpp::get_logger("rokae_driver7"), "%s", e.what());
         return 0;
     }
-    //设置机器人状态
+    //Set robot status
     // robot.setOperateMode(rokae::OperateMode::automatic, ec);
     // robot.setMotionControlMode(MotionControlMode::RtCommand, ec);
     // robot.setPowerState(true, ec);
@@ -1050,9 +1050,9 @@ int main(int argc , char** argv){
     auto calculate_fk_service = node->create_service<rokae_msgs::srv::CalculateFK>(
         "/rokae_driver7/calculate_fk", &calculate_fk_callback);
 
-    auto movej_service = node->create_service<rokae_msgs::srv::MoveJ>( //服务消息名称大写开头
-    "/rokae_driver7/movej",  // 服务名称
-    &movej_callback);          // 回调函数
+    auto movej_service = node->create_service<rokae_msgs::srv::MoveJ>( //Service message name starts with a capital letter
+    "/rokae_driver7/movej",  // Service Name
+    &movej_callback);          // Callback function
 
     auto movel_service = node->create_service<rokae_msgs::srv::MoveL>("/rokae_driver7/movel",&movel_callback);
         
@@ -1064,17 +1064,17 @@ int main(int argc , char** argv){
 
     std::thread monitor_thread(state_monitor_worker, node);
     
-    // 保持节点运行
+    // Keep the node running
     rclcpp::spin(node);
     
-    RCLCPP_INFO(node->get_logger(), "正在关闭节点...");
+    RCLCPP_INFO(node->get_logger(), "Shutting down the node...");
     if (monitor_thread.joinable()) {
         monitor_thread.join();
-        // RCLCPP_INFO(node->get_logger(), "状态监控线程已合并。");
+        // RCLCPP_INFO(node->get_logger(), "The status monitoring thread has been merged。");
     }
     
-    // 节点结束时清理
-    robot.setSimulationMode(false, ec); //di信号需要开启模拟模式
+    // Cleanup at the end of the node
+    robot.setSimulationMode(false, ec); //diThe signal needs to enable analog mode
     robot.setMotionControlMode(rokae::MotionControlMode::Idle, ec);
     robot.setPowerState(false, ec);
 

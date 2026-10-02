@@ -1,15 +1,15 @@
-# 请求消息
+# Request
 string register_name
-string data_type    # 可选项: "float", "int", "bool", "int16", "uint16", "double"
-int32 index         # 索引位置，如果读取单个值
-bool read_all       # 是否读取所有值
+string data_type    # Options: "float", "int", "bool", "int16", "uint16", "double"
+int32 index         # Index when reading a single value
+bool read_all       # Whether to read all values
 
 ---
-# 响应消息
+# Response
 bool success
 string message
 
-# 各种数据类型的返回数组
+# Return arrays by data type
 float32[] float_values
 bool[] bool_values
 int16[] int16_values

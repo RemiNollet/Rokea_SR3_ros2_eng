@@ -1,14 +1,14 @@
-# MoveC.srv - 圆弧运动服务
+# MoveC.srv - circular motion service
 
-# 辅助点相对偏移量 (dx, dy, dz) - 相对于当前位置的偏移
+# Auxiliary-point relative offset (dx, dy, dz) from the current pose
 float64[3] aux_offset
 
-# 终点相对偏移量 (dx, dy, dz) - 相对于当前位置的偏移
+# End-point relative offset (dx, dy, dz) from the current pose
 float64[3] target_offset
 
-# 运动速度 (建议范围：0.01-1.0)
+# Motion speed (recommended range: 0.01-1.0)
 float32 velocity
 
 ---
-bool success       # 执行是否成功
-string message     # 返回信息
+bool success       # Whether execution succeeded
+string message     # Status message

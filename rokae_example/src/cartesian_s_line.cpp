@@ -1,4 +1,4 @@
-// MoveIt 笛卡尔空间直线轨迹示范：沿 Z 轴负方向下降
+// MoveIt Demonstration of Cartesian space straight line trajectory: descending along the negative Z axis
 #include <rclcpp/rclcpp.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <controller_manager_msgs/srv/list_controllers.hpp>
@@ -35,7 +35,7 @@ public:
 	bool move_to_pre_position(const std::vector<double>& first_six_target)
 	{
 		if (!move_group_) {
-			RCLCPP_ERROR(this->get_logger(), "MoveGroupInterface 未初始化");
+			RCLCPP_ERROR(this->get_logger(), "MoveGroupInterface Uninitialized");
 			return false;
 		}
 
@@ -44,7 +44,7 @@ public:
 		const size_t dof = current.size();
 
 		if (dof < first_six_target.size()) {
-			RCLCPP_ERROR(this->get_logger(), "自由度不足，期望至少 %zu，实际 %zu", first_six_target.size(), dof);
+			RCLCPP_ERROR(this->get_logger(), "Insufficient degrees of freedom, expected at least %zu, actual %zu", first_six_target.size(), dof);
 			return false;
 		}
 
@@ -64,33 +64,33 @@ public:
 
 		moveit::planning_interface::MoveGroupInterface::Plan plan;
 		if (arm.plan(plan) != moveit::core::MoveItErrorCode::SUCCESS) {
-			RCLCPP_ERROR(this->get_logger(), "预位姿规划失败");
+			RCLCPP_ERROR(this->get_logger(), "Pre-position pose planning failed");
 			return false;
 		}
 
 		if (arm.execute(plan) != moveit::core::MoveItErrorCode::SUCCESS) {
-			RCLCPP_ERROR(this->get_logger(), "预位姿执行失败");
+			RCLCPP_ERROR(this->get_logger(), "Pre-position pose execution failed");
 			return false;
 		}
 
-		RCLCPP_INFO(this->get_logger(), "已到达预位姿");
+		RCLCPP_INFO(this->get_logger(), "Arrived at the pre-position");
 		return true;
 	}
 
 	bool execute_cartesian_line_down(double z_down, double ds, double vel_scale, double acc_scale)
 	{
 		if (!move_group_) {
-			RCLCPP_ERROR(this->get_logger(), "MoveGroupInterface 未初始化");
+			RCLCPP_ERROR(this->get_logger(), "MoveGroupInterface Uninitialized");
 			return false;
 		}
 
 		if (z_down <= 0.0 || ds <= 0.0) {
-			RCLCPP_ERROR(this->get_logger(), "参数非法，要求 z_down > 0 且 ds > 0");
+			RCLCPP_ERROR(this->get_logger(), "Invalid parameter, required z_down > 0 and ds > 0");
 			return false;
 		}
 
 		if (vel_scale <= 0.0 || vel_scale > 1.0 || acc_scale <= 0.0 || acc_scale > 1.0) {
-			RCLCPP_ERROR(this->get_logger(), "参数非法，要求 0 < vel_scale/acc_scale <= 1");
+			RCLCPP_ERROR(this->get_logger(), "Invalid parameter, required 0 < vel_scale/acc_scale <= 1");
 			return false;
 		}
 
@@ -107,7 +107,7 @@ public:
 		const double s = std::sqrt(dx * dx + dy * dy + dz * dz);
 
 		if (s < 1e-6) {
-			RCLCPP_ERROR(this->get_logger(), "直线长度过小，无法生成轨迹");
+			RCLCPP_ERROR(this->get_logger(), "The straight-line length is too short to generate a trajectory");
 			return false;
 		}
 
@@ -137,7 +137,7 @@ public:
 			true);
 
 		if (fraction < 0.99) {
-			RCLCPP_ERROR(this->get_logger(), "笛卡尔路径规划不完整，完成率: %.3f", fraction);
+			RCLCPP_ERROR(this->get_logger(), "Decartes path planning incompleteness, completion rate: %.3f", fraction);
 			return false;
 		}
 
@@ -147,7 +147,7 @@ public:
 		trajectory_processing::IterativeParabolicTimeParameterization iptp;
 		const bool timed_ok = iptp.computeTimeStamps(rt, vel_scale, acc_scale);
 		if (!timed_ok) {
-			RCLCPP_ERROR(this->get_logger(), "轨迹时间参数化失败");
+			RCLCPP_ERROR(this->get_logger(), "Trajectory time parameterization failed");
 			return false;
 		}
 
@@ -158,7 +158,7 @@ public:
 
 		const auto exec_result = arm.execute(plan);
 		if (exec_result != moveit::core::MoveItErrorCode::SUCCESS) {
-			RCLCPP_WARN(this->get_logger(), "笛卡尔轨迹执行失败，尝试重启控制器...");
+			RCLCPP_WARN(this->get_logger(), "Failed to execute the Cartesian trajectory, try restarting the controller...");
 			arm.stop();
 			arm.clearPoseTargets();
 			arm.setStartStateToCurrentState();
@@ -166,7 +166,7 @@ public:
 			return false;
 		}
 
-		RCLCPP_INFO(this->get_logger(), "笛卡尔直线运动完成：沿 Z 轴负方向下降 %.3f m", z_down);
+		RCLCPP_INFO(this->get_logger(), "Cartesian linear motion completed: descending along the negative Z-axis %.3f m", z_down);
 		return true;
 	}
 
@@ -177,7 +177,7 @@ private:
 	bool reset_controller(const std::string& controller_name)
 	{
 		if (!controller_client_->wait_for_service(std::chrono::seconds(3))) {
-			RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/switch_controller 不可用！");
+			RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/switch_controller Not available！");
 			return false;
 		}
 
@@ -191,19 +191,19 @@ private:
 		if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) !=
 			rclcpp::FutureReturnCode::SUCCESS)
 		{
-			RCLCPP_ERROR(this->get_logger(), "调用 /switch_controller 服务失败！");
+			RCLCPP_ERROR(this->get_logger(), "Call /switch_controller Service failed！");
 			return false;
 		}
 
 		if (!future.get()->ok) {
-			RCLCPP_ERROR(this->get_logger(), "控制器切换失败，可能资源被占用！");
+			RCLCPP_ERROR(this->get_logger(), "Controller switch failed, the resource may be occupied！");
 			return false;
 		}
 
 		auto list_client = this->create_client<controller_manager_msgs::srv::ListControllers>(
 			"/controller_manager/list_controllers");
 		if (!list_client->wait_for_service(std::chrono::seconds(3))) {
-			RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/list_controllers 不可用！");
+			RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/list_controllers Not available！");
 			return false;
 		}
 
@@ -215,7 +215,7 @@ private:
 			if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), list_future) !=
 				rclcpp::FutureReturnCode::SUCCESS)
 			{
-				RCLCPP_WARN(this->get_logger(), "查询控制器状态失败，重试中...");
+				RCLCPP_WARN(this->get_logger(), "Failed to query controller status, retrying...");
 				continue;
 			}
 
@@ -223,10 +223,10 @@ private:
 			for (const auto& ctrl : response->controller) {
 				if (ctrl.name == controller_name) {
 					if (ctrl.state == "active") {
-						RCLCPP_INFO(this->get_logger(), "控制器 [%s] 已经重新激活！", controller_name.c_str());
+						RCLCPP_INFO(this->get_logger(), "Controller [%s] Already reactivated！", controller_name.c_str());
 						return true;
 					}
-					RCLCPP_INFO(this->get_logger(), "控制器 [%s] 当前状态: %s, 等待中...",
+					RCLCPP_INFO(this->get_logger(), "Controller [%s] Current status: %s, waiting...",
 								controller_name.c_str(), ctrl.state.c_str());
 				}
 			}
@@ -234,7 +234,7 @@ private:
 			rclcpp::sleep_for(std::chrono::milliseconds(500));
 		}
 
-		RCLCPP_ERROR(this->get_logger(), "控制器 [%s] 重启后未进入 active 状态！", controller_name.c_str());
+		RCLCPP_ERROR(this->get_logger(), "Controller [%s] Did not enter active state after reboot！", controller_name.c_str());
 		return false;
 	}
 };
@@ -262,7 +262,7 @@ int main(int argc, char** argv)
 	const std::vector<double> pre_position = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
 	bool ok = node->move_to_pre_position(pre_position);
 	if (!ok) {
-		RCLCPP_ERROR(node->get_logger(), "移动到预位姿失败");
+		RCLCPP_ERROR(node->get_logger(), "Failed to move to pre-position pose");
 		rclcpp::shutdown();
 		spinner.join();
 		return 1;
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
 		0.08);
 
 	if (!ok) {
-		RCLCPP_ERROR(node->get_logger(), "笛卡尔直线运动执行失败");
+		RCLCPP_ERROR(node->get_logger(), "Failure to execute Cartesian linear motion");
 	}
 
 	rclcpp::shutdown();

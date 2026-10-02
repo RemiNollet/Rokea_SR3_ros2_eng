@@ -1,10 +1,10 @@
 0.0.4 (2026-05-15)
 ------------------
-* 本版本新增 Gazebo 仿真支持：相关 launch、gazebo_ros 模型与资源路径导出等。
+* Added Gazebo simulation support: related launches and gazebo_ros model/resource path exports.
 
 0.0.3 (2026-05-06)
 ------------------
-* 适配 xMate CR35：URDF/xacro、ros2_control、网格等资源。
+* xMate CR35 support: URDF/xacro, ros2_control, meshes, and related assets.
 
 0.0.2 (2026-04-10)
 ------------------

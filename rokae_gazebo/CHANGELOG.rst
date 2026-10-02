@@ -1,3 +1,3 @@
 0.0.4 (2026-05-15)
 ------------------
-* 与 rokae_ros2 栈 0.0.4 对齐首次发布；提供 Gazebo 仿真世界、launch 与脚本。
+* First release aligned with rokae_ros2 stack 0.0.4; provides Gazebo worlds, launches, and scripts.

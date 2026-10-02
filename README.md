@@ -1,34 +1,34 @@
 # Rokae ROS 2
 
-珞石机器人 ROS 2 软件栈，基于 `ros2_control` 与 MoveIt 2，提供 xMate 系列机械臂的仿真与真机控制。
+Rokae ROS 2 software stack based on `ros2_control` and MoveIt 2. It provides simulation and real-robot control for the xMate series arms.
 
-当前栈版本：**0.0.4**
+Current stack version: **0.0.4**
 
-## 兼容性
+## Compatibility
 
-| 项目 | 要求 |
+| Item | Requirement |
 |------|------|
-| 操作系统 | Ubuntu 22.04（推荐） |
+| OS | Ubuntu 22.04 (recommended) |
 | ROS 2 | Humble |
-| xCore SDK | 与 `rokae_hardware/sdk/VERSION` 一致（当前 **0.7.1**） |
-| xCore 控制器 | ≥ v3.2.1 |
+| xCore SDK | Match `rokae_hardware/sdk/VERSION` (currently **0.7.1**) |
+| xCore controller | ≥ v3.2.1 |
 
-## 仓库内容
+## Repository contents
 
-本仓库包含 ROS 2 源码包、URDF/MoveIt 配置与示例，**不包含** xCore SDK 预编译库。
+This repository contains ROS 2 source packages, URDF/MoveIt configuration, and examples. It does **not** include prebuilt xCore SDK libraries.
 
-| 包 | 说明 |
-|----|------|
-| `rokae_hardware` | 硬件接口、`ros2_control` 插件、驱动与 SDK 头文件 |
-| `rokae_description` | URDF / mesh |
-| `rokae_msgs` | 自定义消息与服务 |
-| `rokae_example` | 运动示例 |
-| `rokae_gazebo` | Gazebo 仿真辅助 |
-| `rokae_xMate*_moveit_config` | 各机型 MoveIt 配置 |
+| Package | Description |
+|---------|-------------|
+| `rokae_hardware` | Hardware interface, `ros2_control` plugin, drivers, and SDK headers |
+| `rokae_description` | URDF / meshes |
+| `rokae_msgs` | Custom messages and services |
+| `rokae_example` | Motion examples |
+| `rokae_gazebo` | Gazebo simulation helpers |
+| `rokae_xMate*_moveit_config` | MoveIt configuration per robot model |
 
-## 获取与编译
+## Get and build
 
-### 1. 克隆仓库
+### 1. Clone the repository
 
 ```bash
 mkdir -p ~/ros2_ws/src
@@ -36,16 +36,16 @@ cd ~/ros2_ws/src
 git clone <your-github-repo-url> rokae_ros2
 ```
 
-克隆后目录名只要位于 `src/` 下即可被 `colcon` 发现。
+After cloning, the directory only needs to sit under `src/` for `colcon` to discover it.
 
-### 2. 下载 xCore SDK 预编译库
+### 2. Download prebuilt xCore SDK libraries
 
-1. 查看 `rokae_hardware/sdk/VERSION` 中的 SDK 版本号
-2. 打开对应 [xCoreSDK-CPP Release](https://github.com/RokaeRobot/xCoreSDK-CPP/releases) 页面
-3. 下载匹配平台的库包（Linux 示例：`xCoreSDK-0.7.1-linux-x86_64.tar.gz`）
-4. 按 [rokae_hardware/sdk/lib/README.md](rokae_hardware/sdk/lib/README.md) 解压到 `rokae_hardware/sdk/lib/`
+1. Check the SDK version in `rokae_hardware/sdk/VERSION`
+2. Open the matching [xCoreSDK-CPP Release](https://github.com/RokaeRobot/xCoreSDK-CPP/releases) page
+3. Download the library package for your platform (Linux example: `xCoreSDK-0.7.1-linux-x86_64.tar.gz`)
+4. Extract it into `rokae_hardware/sdk/lib/` as described in [rokae_hardware/sdk/lib/README.md](rokae_hardware/sdk/lib/README.md)
 
-### 3. 安装 ROS 2 依赖并编译
+### 3. Install ROS 2 dependencies and build
 
 ```bash
 cd ~/ros2_ws
@@ -54,16 +54,16 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-## 文档
+## Documentation
 
-- [使用手册](doc/rokae%20ros2使用手册.md)
-- [Demo 启动说明](doc/README_demo.md)
-- [珞石在线文档（ROS2）](https://docs.rokae.com/docs/ROS2) — 可通过该链接进入公司文档在线手册，学习 ROS 2 及其他相关内容
+- [User manual](doc/rokae%20ros2使用手册.md)
+- [Demo launch notes](doc/README_demo.md)
+- [Rokae online docs (ROS 2)](https://docs.rokae.com/docs/ROS2) — company documentation for ROS 2 and related topics
 
-## 发版说明
+## Release notes
 
-- 栈版本：更新各包 `package.xml`、`CMakeLists.txt` 中的 `VERSION`，并写 `CHANGELOG.rst` / 根目录 `CHANGELOG.md`
-- SDK 升级：同步 `rokae_hardware/sdk/include` 头文件，更新 `rokae_hardware/sdk/VERSION`，在 GitHub Release 说明中注明所需 xCore SDK 版本
+- Stack version: update `VERSION` in each package `package.xml` and `CMakeLists.txt`, and write `CHANGELOG.rst` / root `CHANGELOG.md`
+- SDK upgrade: sync `rokae_hardware/sdk/include` headers, update `rokae_hardware/sdk/VERSION`, and note the required xCore SDK version in the GitHub Release notes
 
 ## License
 

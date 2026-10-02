@@ -11,7 +11,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def load_yaml(package_name, file_path):
-    """加载 YAML 文件"""
+    """Load YAML file"""
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)
     try:
@@ -35,15 +35,15 @@ def launch_setup(context, *args, **kwargs):
     elif robot_type.startswith(("CR", "AR", "ER", "Pro", "SR")) and use_fake_hardware.lower() in ("0", "false", "no"):
         use_sim_time = False
 
-    # description 包
+    # description bag
     description_pkg = get_package_share_directory("rokae_description")
     urdf_file = os.path.join(description_pkg, "urdf", "xMate.urdf.xacro")
 
-    # moveit_config 包名和 share
+    # moveit_config Package name and share
     moveit_config_pkg_name = f"rokae_xMate{robot_type}_moveit_config"
     moveit_config_pkg_share = get_package_share_directory(moveit_config_pkg_name)
 
-    # SRDF 文件
+    # SRDF Document
     srdf_file = os.path.join(
         moveit_config_pkg_share, "config", f"xMate{robot_type}.srdf"
     )
@@ -76,7 +76,7 @@ def launch_setup(context, *args, **kwargs):
         moveit_config_pkg_share, "config", "kinematics.yaml"
     )
 
-    # OMPL 配置
+    # OMPL Configuration
     ompl_yaml = load_yaml(moveit_config_pkg_name, "config/ompl_planning.yaml")
     ompl_pipeline_config = {
         "move_group": {
@@ -93,7 +93,7 @@ def launch_setup(context, *args, **kwargs):
     if ompl_yaml:
         ompl_pipeline_config["move_group"].update(ompl_yaml)
 
-    # 控制器
+    # Controller
     controllers_yaml = load_yaml(moveit_config_pkg_name, "config/simple_moveit_controllers.yaml")
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_yaml,
@@ -106,7 +106,7 @@ def launch_setup(context, *args, **kwargs):
         "moveit_manage_controllers": True,
         "execution_duration_monitoring": True,
         "trajectory_execution.wait_for_trajectory_completion": True,
-        # 添加状态更新配置
+        # Add status update configuration
         "trajectory_execution.update_state_after_execution": True,
         "trajectory_execution.update_state_before_execution": True,
         "execution_duration_monitoring": False,
@@ -114,7 +114,7 @@ def launch_setup(context, *args, **kwargs):
         "trajectory_execution.allowed_execution_duration_scaling": 5.0,
         "trajectory_execution.allowed_goal_duration_margin": 2.0,
         "trajectory_execution.allowed_start_tolerance": 0.01,
-        "velocity_scaling_factor": 0.01,    # 默认 1.0，调低到 0.2 就是 20% 速度
+        "velocity_scaling_factor": 0.01,    # Default is 1.0, lowering it to 0.2 is 20% speed
         "acceleration_scaling_factor": 0.01
     }
 
@@ -126,7 +126,7 @@ def launch_setup(context, *args, **kwargs):
     }
 
 
-    # MoveIt move_group 节点
+    # MoveIt move_group Node
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -144,7 +144,7 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    # RViz 节点
+    # RViz Node
     rviz_config_file = os.path.join(moveit_config_pkg_share, "rviz", "moveit.rviz")
     rviz_node = Node(
         package="rviz2",

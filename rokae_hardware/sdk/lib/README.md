@@ -1,54 +1,52 @@
-# xCore SDK 预编译库 / Prebuilt Libraries
-
-本目录**不包含**预编译库。库文件从 [xCoreSDK-CPP Releases](https://github.com/RokaeRobot/xCoreSDK-CPP/releases) 下载，版本号见上级目录 [`VERSION`](../VERSION)。
+# xCore SDK Prebuilt Libraries
 
 This directory does **not** include prebuilt libraries. Download them from [xCoreSDK-CPP Releases](https://github.com/RokaeRobot/xCoreSDK-CPP/releases); the required version is in [`VERSION`](../VERSION).
 
-**Release URL：**
+**Release URL:**
 
 `https://github.com/RokaeRobot/xCoreSDK-CPP/releases/tag/v{VERSION}`
 
-例如当前 0.7.1：[Release v0.7.1](https://github.com/RokaeRobot/xCoreSDK-CPP/releases/tag/v0.7.1)
+Example for 0.7.1: [Release v0.7.1](https://github.com/RokaeRobot/xCoreSDK-CPP/releases/tag/v0.7.1)
 
-## 获取步骤 / How to Obtain
+## How to obtain
 
-1. 查看 `rokae_hardware/sdk/VERSION` 中的版本号
-2. 打开对应 [Release 页面](https://github.com/RokaeRobot/xCoreSDK-CPP/releases/tag/v0.7.1)
-3. 下载 Linux 库包，例如：
+1. Check the version in `rokae_hardware/sdk/VERSION`
+2. Open the matching [Release page](https://github.com/RokaeRobot/xCoreSDK-CPP/releases/tag/v0.7.1)
+3. Download the Linux library package, for example:
    - `xCoreSDK-0.7.1-linux-x86_64.tar.gz`
    - `xCoreSDK-0.7.1-linux-aarch64.tar.gz`
-4. 解压 Release 包，将以下文件**复制到本目录** `rokae_hardware/sdk/lib/`：
+4. Extract the Release archive and **copy the following files into this directory** `rokae_hardware/sdk/lib/`:
 
 ### Linux x86_64 / aarch64
 
-从 Release 包内 `lib/Linux/<arch>/` 复制：
+Copy from `lib/Linux/<arch>/` inside the Release archive:
 
 ```
 rokae_hardware/sdk/lib/
   libxCoreSDK.a
   libxMateModel.a
-  libxCoreSDK.so.0.7.1    # 可选，动态库
-  libxCoreSDK.so          # 可选，若 Release 包提供符号链接
+  libxCoreSDK.so.0.7.1    # optional shared library
+  libxCoreSDK.so          # optional, if the archive provides a symlink
 ```
 
-`rokae_hardware` 与 `rokae_example` 默认链接静态库 `libxCoreSDK.a` 与 `libxMateModel.a`。
+`rokae_hardware` and `rokae_example` link the static libraries `libxCoreSDK.a` and `libxMateModel.a` by default.
 
-### Windows（交叉开发参考）
+### Windows (cross-development reference)
 
-从 Release 包内 `lib/Windows/Release/64bit/` 复制 `xCoreSDK_static.lib`、`xMateModel.lib` 等到本目录，并在 CMake 中按平台调整库名（当前 CMake 面向 Linux 静态库命名）。
+Copy `xCoreSDK_static.lib`, `xMateModel.lib`, and related files from `lib/Windows/Release/64bit/` in the Release archive into this directory, and adjust library names in CMake per platform (current CMake targets Linux static library names).
 
-## 验证 / Verify
+## Verify
 
-在 ROS 2 工作空间根目录执行：
+From the ROS 2 workspace root:
 
 ```bash
 colcon build --packages-select rokae_hardware
 ```
 
-若库缺失，CMake 会输出 WARNING 并提示下载地址。
+If the libraries are missing, CMake prints a WARNING with a download URL.
 
-## 维护者说明 / Maintainers
+## Maintainer notes
 
-- 升级 SDK 时：同步更新 `sdk/include/` 头文件、`sdk/VERSION`，并在栈 CHANGELOG 中注明
-- **禁止**将 `.a` / `.so` / `.dll` / `.lib` 提交到 Git
-- 完整 xCore SDK 发版流程见 [xCoreSDK-CPP lib/README.md](https://github.com/RokaeRobot/xCoreSDK-CPP/blob/main/lib/README.md)
+- When upgrading the SDK: also update `sdk/include/` headers and `sdk/VERSION`, and note it in the stack CHANGELOG
+- Do **not** commit `.a` / `.so` / `.dll` / `.lib` files to Git
+- Full xCore SDK release process: [xCoreSDK-CPP lib/README.md](https://github.com/RokaeRobot/xCoreSDK-CPP/blob/main/lib/README.md)

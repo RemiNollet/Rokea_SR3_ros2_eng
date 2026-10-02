@@ -68,20 +68,20 @@ def generate_launch_description():
         output='screen'
     )
 
-    # ===================== 【新增：关节拖动 GUI】 =====================
+    # ===================== 【New: Joint dragging GUI】 =====================
     joint_state_publisher_gui = Node(
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
         name='joint_state_publisher_gui',
         output='screen',
         parameters=[{'use_sim_time': True}],
-        # 关键：把 GUI 的话题重映射到 /joint_states_gui
+        # Key: Remap the topic of the GUI to /joint_states_gui
         remappings=[
             ('/joint_states', '/joint_states_gui')
         ]
     )
 
-    # 【新增：GUI 转轨迹控制节点】
+    # 【Added: GUI to trajectory control node】
     gui_control_node = Node(
         package="rokae_description",
         executable="gui_to_joint_trajectory.py",
@@ -90,7 +90,7 @@ def generate_launch_description():
         parameters=[{"use_sim_time": True}]
     )
 
-     # 场景管理服务节点（任务2.2）
+     # Scene Management Service Node (Task2.2）
     scene_manager_node = Node(
         package="rokae_hardware",
         executable="scene_service",
@@ -103,9 +103,9 @@ def generate_launch_description():
         gazebo,
         robot_state_publisher,
         spawn_entity,
-        joint_state_publisher_gui,  # <-- 启动GUI
+        joint_state_publisher_gui,  # <-- StartGUI
         gui_control_node, 
-        scene_manager_node,  # <-- 加在这里
+        scene_manager_node,  # <-- Add here
 
         TimerAction(period=3.0, actions=[joint_state_broadcaster]),
         TimerAction(period=4.0, actions=[arm_controller])

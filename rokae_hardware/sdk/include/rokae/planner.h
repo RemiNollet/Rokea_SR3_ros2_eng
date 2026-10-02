@@ -1,6 +1,6 @@
 ﻿/**
  * @file planner.h
- * @brief 路径规划相关功能
+ * @brief Path planning related functions
  * @copyright Copyright (C) 2025 ROKAE (Beijing) Technology Co., LTD. All Rights Reserved.
  * Information in this file is the intellectual property of Rokae Technology Co., Ltd,
  * And may contains trade secrets that must be stored and viewed confidentially.
@@ -30,49 +30,49 @@ namespace rokae {
 
 /**
  * @class CartMotionGenerator
- * @brief S速度规划的笛卡尔空间运动。
- * 参考文献: Wisama Khalil and Etienne Dombre. 2002. Modeling, Identification and Control of Robots
+ * @brief SCartesian space motion of speed planning。
+ * References: Wisama Khalil and Etienne Dombre. 2002. Modeling, Identification and Control of Robots
  * (Kogan Page Science Paper edition).
  */
  class XCORE_API CartMotionGenerator {
   public:
    /**
-    * @brief 根据路径总长度和速度系数生成一条笛卡尔空间平滑的轨迹
-    * @param[in] speed_factor 速度系数，范围[0, 1]。最终的速度/加速度 = 最大速度/加速度 * 速度系数
-    * @param[in] s_goal 路径总长度 [m]
+    * @brief Generate a smooth trajectory in Cartesian space based on the total path length and velocity factor
+    * @param[in] speed_factor Speed coefficient, range[0, 1]。Final speed/acceleration = Maximum Speed / Acceleration * Speed coefficient
+    * @param[in] s_goal Total path length [m]
     */
    CartMotionGenerator(double speed_factor, double s_goal);
 
    /**
-    * @brief 析构函数
+    * @brief Destructor
     */
    ~CartMotionGenerator();
 
    /**
-    * @brief 设置笛卡尔空间运动参数
-    * @param[in] ds_max 最大速度 [m/s], 默认值1.0m/s。
-    * @param[in] dds_max_start 最大开始加速度 [m/s^2], 默认值2.5m/s2
-    * @param[in] dds_max_end 最大结束加速度 [m/s^2], 默认值2.5m/s2
+    * @brief Set Cartesian space motion parameters
+    * @param[in] ds_max Maximum speed [m/s], Default value1.0m/s。
+    * @param[in] dds_max_start Maximum starting acceleration [m/s^2], Default value2.5m/s2
+    * @param[in] dds_max_end Maximum terminal acceleration [m/s^2], Default value2.5m/s2
     */
    void setMax(double ds_max, double dds_max_start, double dds_max_end);
 
    /**
-    * @brief 获得总运动时间
-    * @return 运动时间，单位：秒
+    * @brief Obtain total exercise time
+    * @return Exercise time, unit: seconds
     */
    double getTime();
 
    /**
-    * @brief 计算时间t时的弧长s
-    * @param[in] t 距开始规划的时间间隔，单位：秒
-    * @param[out] delta_s_d 计算结果
-    * @return false: 运动规划没有结束 | true: 运动规划结束
+    * @brief Arc length at time ts
+    * @param[in] t Time interval since start of planning, unit: seconds
+    * @param[out] delta_s_d Calculation Result
+    * @return false: Motion planning is not finished | true: Motion planning finished
     */
    bool calculateDesiredValues(double t, double *delta_s_d) const;
 
    /**
-    * @brief 同步当前弧长
-    * @param[in] s_init 初始弧长
+    * @brief Synchronize current arc length
+    * @param[in] s_init Initial arc length
     */
    void calculateSynchronizedValues(double s_init);
 
@@ -81,7 +81,7 @@ namespace rokae {
 
 /**
  * @class JointMotionGenerator
- * @brief S速度规划的轴空间运动。参考文献:
+ * @brief SAxis space motion of speed planning. References:
  * Wisama Khalil and Etienne Dombre. 2002. Modeling, Identification and Control of Robots
  * (Kogan Page Science Paper edition).
  */
@@ -91,39 +91,39 @@ namespace rokae {
 
   public:
    /**
-    * @brief 根据关节目标位置和速度系数生成一条轴空间轨迹，可用来回零或到达指定位置。
-    * @param[in] speed_factor 速度系数，范围[0, 1]。最终的各轴速度/加速度 = 轴空间最大速度/加速度 * 速度系数
-    * @param[in] q_goal 目标关节角度 [rad]
+    * @brief Generate a joint-space trajectory based on the joint target position and velocity coefficients, which can be used to return to zero or reach a specified position。
+    * @param[in] speed_factor Speed coefficient, range[0, 1]。Final speed/acceleration of each axis = Maximum speed/acceleration of the axis in space * Speed coefficient
+    * @param[in] q_goal Target joint angle [rad]
     */
    JointMotionGenerator(double speed_factor, std::array<double, 7> q_goal);
    virtual ~JointMotionGenerator();
 
    /**
-    * @brief 设置轴空间S速度规划的运动参数
-    * @param[in] dq_max 最大速度 [rad/s], 默认值J1~J4 1.0rad/s, J5~J7 1.25rad/s
-    * @param[in] ddq_max_start 最大开始加速度 [rad/s^2], 默认值2.5rad/s^2
-    * @param[in] ddq_max_end 最大结束加速度 [rad/s^2], 默认值2.5rad/s^2
+    * @brief Set the motion parameters for axis-space S velocity planning
+    * @param[in] dq_max Maximum speed [rad/s], Default valueJ1~J4 1.0rad/s, J5~J7 1.25rad/s
+    * @param[in] ddq_max_start Maximum starting acceleration [rad/s^2], Default value2.5rad/s^2
+    * @param[in] ddq_max_end Maximum terminal acceleration [rad/s^2], Default value2.5rad/s^2
     */
    void setMax(const std::array<double, 7> &dq_max,
                const std::array<double, 7> &ddq_max_start,
                const std::array<double, 7> &ddq_max_end);
 
    /**
-    * @brief 获得总运动时间
+    * @brief Obtain total exercise time
     */
    double getTime();
 
    /**
-    * @brief 计算时间t时的关节角度增量
-    * @param[in] t 时间点, 单位秒
-    * @param[out] delta_q_d 计算结果
-    * @return false: 运动规划没有结束 | true: 运动规划结束
+    * @brief Joint angle increment at computation time t
+    * @param[in] t Time point, unit: seconds
+    * @param[out] delta_q_d Calculation Result
+    * @return false: Motion planning is not finished | true: Motion planning finished
     */
    bool calculateDesiredValues(double t, std::array<double, 7> &delta_q_d) const;
 
    /**
-    * @brief 同步当前轴角度值
-    * @param[in] q_init 初始轴角度
+    * @brief Synchronize current axis angle value
+    * @param[in] q_init Initial shaft angle
     */
    void calculateSynchronizedValues(const std::array<double, 7> &q_init);
 
@@ -132,8 +132,8 @@ namespace rokae {
 
 #if defined(XMATEMODEL_LIB_SUPPORTED)
  /**
-  * @brief 点位跟随, 点位可以是笛卡尔位姿或轴角度，适用于视觉伺服跟随的使用场景
-  * @tparam DoF 轴数
+  * @brief Point following, where the point can be a Cartesian pose or joint angles, suitable for use in visual servo following scenarios
+  * @tparam DoF Number of axles
   */
  template <unsigned short DoF>
  class XCORE_API FollowPosition {
@@ -145,9 +145,9 @@ namespace rokae {
    FollowPosition();
 
    /**
-    * @param robot rokae::Robot实例
-    * @param model rokae::xMateModel实例, 通过robot.model()获取
-    * @param[in] endInFlange 末端相对于法兰的位姿
+    * @param robot rokae::RobotExample
+    * @param model rokae::xMateModelExample, throughrobot.model()Obtain
+    * @param[in] endInFlange Pose of the end relative to the flange
     */
    FollowPosition(Cobot<DoF>& robot,
                   xMateModel<DoF>& model,
@@ -156,48 +156,48 @@ namespace rokae {
    ~FollowPosition();
 
     /**
-     * @brief 初始化FollowPosition
-     * @param robot rokae::Robot实例
-     * @param model rokae::xMateModel实例, 通过robot.model()获取
+     * @brief InitializationFollowPosition
+     * @param robot rokae::RobotExample
+     * @param model rokae::xMateModelExample, throughrobot.model()Obtain
      */
    void init(Cobot<DoF>& robot, XMateModel<DoF>& model);
 
    /**
-    * @brief 开始目标跟随 - 笛卡尔位姿。该接口非阻塞。
-    * @param[in] bMe_desire 期望的目标位姿，为末端相对于基坐标系，即TCP位姿.
+    * @brief Start target following - Cartesian pose. This interface is non-blocking.。
+    * @param[in] bMe_desire The desired target pose, which is the end effector relative to the base coordinate system, that is, the TCP pose.
     */
    void start(const Eigen::Transform<double, 3, Eigen::Isometry>& bMe_desire);
 
    /**
-    * @brief 开始目标跟随 - 轴角度。该接口非阻塞。
-    * @param[in] jnt_desire 期望的轴角度
+    * @brief Start target following - axis angle. This interface is non-blocking。
+    * @param[in] jnt_desire Expected shaft angle
     */
    void start(const std::array<double, DoF> &jnt_desire);
 
    /**
-    * @brief 停止目标跟随
+    * @brief Stop target following
     */
    void stop();
 
    /**
-    * @brief 更新期望的位姿。
-    * @note 跟随带有加减速过程，在接近目标点时减速，故更新的目标点不宜密集，更新频率不宜过快。更新间隔建议至少几十毫秒的量级
-    * @param[in] bMe_desire 末端相对于基坐标系，即TCP位姿
+    * @brief Update the desired pose。
+    * @note Follow a process with acceleration and deceleration, slowing down when approaching the target point. Therefore, the updated target points should not be dense, and the update frequency should not be too fast. The update interval is recommended to be at least on the order of tens of milliseconds.
+    * @param[in] bMe_desire The end relative to the base coordinate system, that is, the TCP pose
     */
    void update(const Eigen::Transform<double, 3, Eigen::Isometry>& bMe_desire);
 
    /**
-    * @brief 更新期望的目标轴角度
-    * @note 跟随带有加减速过程，在接近目标点时减速，故更新的目标点不宜密集，更新频率不宜过快。更新间隔建议至少几十毫秒的量级
-    * @param[in] jnt_desired 轴角度, 单位: 弧度
+    * @brief Update the desired target axis angle
+    * @note Follow a process with acceleration and deceleration, slowing down when approaching the target point. Therefore, the updated target points should not be dense, and the update frequency should not be too fast. The update interval is recommended to be at least on the order of tens of milliseconds.
+    * @param[in] jnt_desired Axis angle, unit: radians
     */
    void update(const std::array<double, DoF>& jnt_desired);
 
    /**
-    * @brief 设置速度比例，可在目标跟随的过程中随时调整。
-    * 最终速度受最大值限制，目前数值不能更改。各轴速度最大值为: 120.0, 120.0, 180.0, 180.0, 200.0, 200.0, 200.0 [°/s]；
-    * 各轴加速度最大值为500.0 [°/s^2]
-    * @param[in] scale 速度比例，默认为0.5
+    * @brief Set the speed ratio, which can be adjusted at any time during the target following process。
+    * The final speed is limited by the maximum value, and the current value cannot be changed. The maximum speed for each axis is: 120.0, 120.0, 180.0, 180.0, 200.0, 200.0, 200.0 [°/s]；
+    * Maximum acceleration of each axis is500.0 [°/s^2]
+    * @param[in] scale Speed ratio, default is0.5
     */
    void setScale(double scale);
 

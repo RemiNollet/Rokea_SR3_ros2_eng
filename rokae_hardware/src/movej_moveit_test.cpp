@@ -1,4 +1,4 @@
-// //只用moveit作轨迹规划，运动控制调用SDK接口
+// //Use MoveIt only for trajectory planning, and call SDK interfaces for motion control
 // // #include <rclcpp/rclcpp.hpp>
 // // #include <moveit/move_group_interface/move_group_interface.h>
 // // #include <moveit/planning_scene_interface/planning_scene_interface.h>
@@ -22,7 +22,7 @@
 
 // //     void run()
 // //     {
-// //         // ============= 初始化 SDK =============
+// //         // ============= Initialization SDK =============
 // //         std::error_code ec;
 // //         robot_ = std::make_shared<rokae::xMateRobot>("192.168.21.10", "192.168.21.131");
 // //         robot_->setOperateMode(rokae::OperateMode::automatic, ec);
@@ -31,14 +31,14 @@
 // //         robot_->startReceiveRobotState(std::chrono::milliseconds(1),
 // //                                        {rokae::RtSupportedFields::jointPos_m});
 
-// //         // 创建 MoveGroupInterface
+// //         // Create MoveGroupInterface
 // //         moveit::planning_interface::MoveGroupInterface arm(shared_from_this(), "rokae_arm");
 
 // //         arm.setPlanningTime(10.0);
 // //         arm.setMaxVelocityScalingFactor(0.2);
 // //         arm.setMaxAccelerationScalingFactor(0.2);
 
-// //         // ============= 设置目标点,进行轨迹规划而非真正运动 =============
+// //         // ============= Set target points for trajectory planning rather than actual movement =============
 // //         std::vector<double> joint_target = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 // //         //std::vector<double> joint_target = {0, 0, 0, 0, 0, 0};
 // //         arm.setJointValueTarget(joint_target);
@@ -48,53 +48,53 @@
 // //         // rci_ = std::dynamic_pointer_cast<RtType>(base_rci);
 // //         rci_ = robot_->getRtMotionController().lock();
 
-// //         // ============= 轨迹规划 =============
+// //         // ============= Trajectory Planning =============
 // //         moveit::planning_interface::MoveGroupInterface::Plan plan;
 // //         bool success = (arm.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
 // //         if (!success) {
-// //             RCLCPP_ERROR(this->get_logger(), "规划失败！");
+// //             RCLCPP_ERROR(this->get_logger(), "Planning failure！");
 // //             return;
 // //         }
 
-// //         RCLCPP_INFO(this->get_logger(), "规划成功，开始开环执行...");
+// //         RCLCPP_INFO(this->get_logger(), "Planning successful, start open-loop execution...");
 
-// //         // ============= 手动下发轨迹点 (开环) =============
+// //         // ============= Manually send trajectory points (Open loop) =============
 // //         const auto &trajectory = plan.trajectory_.joint_trajectory;
-// //         // 记录轨迹起始参考时刻（wall-clock，steady）
+// //         // Reference start time for recording track（wall-clock，steady）
 // //         auto start_wall = std::chrono::steady_clock::now();
-// //         // 将第 i 个点的 ROS Duration 转成 steady_clock 的绝对目标时间： start_wall + point.time_from_start
-// //         for (const auto &point : trajectory.points) {   //遍历轨迹点
-// //             // 检查 positions 长度（和 joint 数量）
+// //         // Convert the ROS Duration of the i-th point to steady_clock absolute target time： start_wall + point.time_from_start
+// //         for (const auto &point : trajectory.points) {   //Traverse trajectory points
+// //             // Check the length of positions (and the number of joints)）
 // //             if (point.positions.size() == 0) {
-// //                 RCLCPP_WARN(this->get_logger(), "轨迹点 positions 为空，跳过该点");
+// //                 RCLCPP_WARN(this->get_logger(), "The trajectory point positions are empty, skipping this point");
 // //                 continue;
 // //             }
 
 // //             std::array<double, 6> target_point{};
 // //             std::copy(point.positions.begin(), point.positions.end(), target_point.begin());
 
-// //             // 把 builtin_interfaces::msg::Duration 转成 rclcpp::Duration
+// //             // put builtin_interfaces::msg::Duration convert to rclcpp::Duration
 // //             rclcpp::Duration ros_dur(point.time_from_start);
 
-// //             // 用 nanoseconds() 得到 int64_t 纳秒数，转换为 chrono::nanoseconds
+// //             // use nanoseconds() get int64_t Number of nanoseconds, converted to chrono::nanoseconds
 // //             auto target_time = start_wall + std::chrono::nanoseconds(ros_dur.nanoseconds());
 
-// //             // 等待直到目标时间到达（如果目标时间已过，则立即发送）
+// //             // Wait until the target time arrives (if the target time has passed, send immediately)）
 // //             auto now = std::chrono::steady_clock::now();
 // //             if (target_time > now) {
 // //                 std::this_thread::sleep_for(target_time - now);
 // //             }
 
-// //             // 下发命令（注意检查 SDK 接口是否是同步或异步、以及是否需要更高精度的发送方法）
+// //             // Issue the command (note to check whether the SDK interface is synchronous or asynchronous, and whether a higher-precision sending method is required)）
 // //             rci_->MoveJ(0.1, robot_->jointPos(ec), target_point);
 // //             if (ec) {
-// //                 RCLCPP_ERROR(this->get_logger(), "下发命令失败: %s", ec.message().c_str());
+// //                 RCLCPP_ERROR(this->get_logger(), "Failed to issue command: %s", ec.message().c_str());
 // //                 break;
 // //             }
 // //         }
 
-// //         RCLCPP_INFO(this->get_logger(), "轨迹下发完成（开环）。");
+// //         RCLCPP_INFO(this->get_logger(), "Trajectory issuance completed (open loop）。");
 // //     }
 
 // // private:
@@ -116,7 +116,7 @@
 
 
 
-//moveit同时作轨迹规划和轨迹下发执行
+//moveitSimultaneously perform trajectory planning and trajectory execution issuance
 #include <rclcpp/rclcpp.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <controller_manager_msgs/srv/switch_controller.hpp>
@@ -136,50 +136,50 @@ public:
             "/controller_manager/switch_controller");
     }
 
-    void set_move_group(std::shared_ptr<moveit::planning_interface::MoveGroupInterface> mg)    //mg 是智能指针类型的变量，用来接收外面传进来的智能指针
+    void set_move_group(std::shared_ptr<moveit::planning_interface::MoveGroupInterface> mg)    //mg It is a variable of smart pointer type, used to receive smart pointers passed in from outside.
     {
         move_group_ = mg;
     }
 
     void movej()
     {
-        auto& arm = *move_group_;   //*move_group_ 解引用 → 得到一个 MoveGroupInterface& 引用,因此arm本质是一个引用
+        auto& arm = *move_group_;   //*move_group_ Dereference → get one MoveGroupInterface& Reference, therefore arm is essentially a reference
 
         arm.setPlanningTime(45.0);
-        // arm.setPoseReferenceFrame("xMateCR12_base");    //***_base 注释可用
+        // arm.setPoseReferenceFrame("xMateCR12_base");    //***_base Comments available
         arm.allowReplanning(true);
         arm.setGoalPositionTolerance(0.2);
         arm.setGoalOrientationTolerance(0.2);
         arm.setMaxAccelerationScalingFactor(0.05);
         arm.setMaxVelocityScalingFactor(0.05);
 
-        //std::vector<double> joint_target = {0, 0, 0, 0, 0, 0};   //六轴测试数据
+        //std::vector<double> joint_target = {0, 0, 0, 0, 0, 0};   //Six-axis test data
         std::vector<double> joint_target = {1, 1, 1, 1, 1, 1};
         // std::vector<double> joint_target = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};   
-        //std::vector<double> joint_target = {1, 1, 1, 1, 1, 1, 1};    //七轴测试数据
+        //std::vector<double> joint_target = {1, 1, 1, 1, 1, 1, 1};    //Seven-axis test data
         arm.setJointValueTarget(joint_target);
 
         moveit::planning_interface::MoveGroupInterface::Plan plan;
         bool success = (arm.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
         if (success) {
-            RCLCPP_INFO(this->get_logger(), "规划成功，正在执行...");
+            RCLCPP_INFO(this->get_logger(), "The plan is successful and is being executed...");
             auto result = arm.execute(plan);
 
             if (result != moveit::core::MoveItErrorCode::SUCCESS) {
-            RCLCPP_WARN(this->get_logger(), "执行失败，尝试重启控制器...");
+            RCLCPP_WARN(this->get_logger(), "Execution failed, try restarting the controller...");
             arm.stop();
             arm.clearPoseTargets();
             arm.setStartStateToCurrentState();
             reset_controller(kControllerName);
-            rclcpp::sleep_for(std::chrono::seconds(2)); // 等待controller切换
+            rclcpp::sleep_for(std::chrono::seconds(2)); // Waiting for the controller to switch
             // if (!reset_controller(kControllerName)) {
-            //     RCLCPP_ERROR(this->get_logger(), "控制器恢复失败，后续规划可能继续出错！");
+            //     RCLCPP_ERROR(this->get_logger(), "Controller recovery failed, subsequent planning may continue to fail！");
             // }
         }
 
         } else {
-            RCLCPP_ERROR(this->get_logger(), "关节空间规划失败！");
+            RCLCPP_ERROR(this->get_logger(), "Joint space planning failure！");
         }
     }
 
@@ -201,7 +201,7 @@ public:
 
             if (target.size() != dof) {
                 RCLCPP_ERROR(this->get_logger(),
-                    "第 %zu 个目标维度错误: 期望 %zu, 实际 %zu",
+                    "Target dimension error #%zu: expected %zu, actual %zu",
                     i + 1, dof, target.size());
                 return false;
             }
@@ -213,15 +213,15 @@ public:
             bool success = (arm.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
             if (!success) {
-                RCLCPP_ERROR(this->get_logger(), "第 %zu 个目标规划失败", i + 1);
+                RCLCPP_ERROR(this->get_logger(), "The %zu-th target planning failed", i + 1);
                 return false;
             }
 
-            RCLCPP_INFO(this->get_logger(), "第 %zu 个目标规划成功，开始执行", i + 1);
+            RCLCPP_INFO(this->get_logger(), "The %zu-th target was successfully planned, starting execution", i + 1);
             auto result = arm.execute(plan);
 
             if (result != moveit::core::MoveItErrorCode::SUCCESS) {
-                RCLCPP_WARN(this->get_logger(), "第 %zu 个目标执行失败，尝试重启控制器", i + 1);
+                RCLCPP_WARN(this->get_logger(), "Execution of target #%zu failed, attempting to restart the controller", i + 1);
                 arm.stop();
                 arm.clearPoseTargets();
                 arm.setStartStateToCurrentState();
@@ -241,39 +241,39 @@ private:
 
     bool reset_controller(const std::string& controller_name)
     {
-        // 1. 检查服务是否可用
+        // 1. Check if the service is available
         if (!controller_client_->wait_for_service(std::chrono::seconds(3))) {
-            RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/switch_controller 不可用！");
+            RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/switch_controller Not available！");
             return false;
         }
 
         auto request = std::make_shared<controller_manager_msgs::srv::SwitchController::Request>();
-        // deactivate + activate 代替旧的 stop/start
+        // deactivate + activate Replace the old stop/start
         request->deactivate_controllers.push_back(controller_name);
         request->activate_controllers.push_back(controller_name);
-        request->strictness = controller_manager_msgs::srv::SwitchController::Request::STRICT; // 严格模式
-        request->timeout = rclcpp::Duration::from_seconds(5.0); // 防止切换长时间卡住
+        request->strictness = controller_manager_msgs::srv::SwitchController::Request::STRICT; // Strict mode
+        request->timeout = rclcpp::Duration::from_seconds(5.0); // Prevent long delays when switching
 
-        // 2. 发送切换请求
+        // 2. Send switch request
         auto future = controller_client_->async_send_request(request);
         if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) !=
             rclcpp::FutureReturnCode::SUCCESS)
         {
-            RCLCPP_ERROR(this->get_logger(), "调用 /switch_controller 服务失败！");
+            RCLCPP_ERROR(this->get_logger(), "Call /switch_controller Service failed！");
             return false;
         }
 
         if (!future.get()->ok) {
-            RCLCPP_ERROR(this->get_logger(), "控制器切换失败，可能资源被占用！");
+            RCLCPP_ERROR(this->get_logger(), "Controller switch failed, the resource may be occupied！");
             return false;
         }
 
-        // 3. 查询控制器状态
+        // 3. Query controller status
         auto list_client = this->create_client<controller_manager_msgs::srv::ListControllers>(
             "/controller_manager/list_controllers");
 
         if (!list_client->wait_for_service(std::chrono::seconds(3))) {
-            RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/list_controllers 不可用！");
+            RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/list_controllers Not available！");
             return false;
         }
 
@@ -285,7 +285,7 @@ private:
             if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), list_future) !=
                 rclcpp::FutureReturnCode::SUCCESS)
             {
-                RCLCPP_WARN(this->get_logger(), "查询控制器状态失败，重试中...");
+                RCLCPP_WARN(this->get_logger(), "Failed to query controller status, retrying...");
                 continue;
             }
 
@@ -293,67 +293,67 @@ private:
             for (const auto& ctrl : response->controller) {
                 if (ctrl.name == controller_name) {
                     if (ctrl.state == "active") {
-                        RCLCPP_INFO(this->get_logger(), "控制器 [%s] 已经重新激活！", controller_name.c_str());
+                        RCLCPP_INFO(this->get_logger(), "Controller [%s] Already reactivated！", controller_name.c_str());
                         return true;
                     } else {
-                        RCLCPP_INFO(this->get_logger(), "控制器 [%s] 当前状态: %s, 等待中...",
+                        RCLCPP_INFO(this->get_logger(), "Controller [%s] Current status: %s, waiting...",
                                     controller_name.c_str(), ctrl.state.c_str());
                     }
                 }
             }
 
-            rclcpp::sleep_for(std::chrono::milliseconds(500)); // 等待再查
+            rclcpp::sleep_for(std::chrono::milliseconds(500)); // Wait and check again
         }
 
-        RCLCPP_ERROR(this->get_logger(), "控制器 [%s] 重启后未进入 active 状态！", controller_name.c_str());
+        RCLCPP_ERROR(this->get_logger(), "Controller [%s] Did not enter active state after reboot！", controller_name.c_str());
         return false;
     }
 
 };
 
 
-//ROS2 的通信模型是 异步 的：收到消息不会自动执行用户代码，必须由 rclcpp 的 executor 去调度并执行回调。当调用 arm.plan() / arm.getCurrentState() 等，MoveIt 内部会等待 action/server 的返回或等待订阅到 /joint_states 的回调结果。这些返回/回调的处理依赖 executor 的 spin。
+//ROS2 The communication model is asynchronous: receiving a message does not automatically execute user code; it must be scheduled and executed by the rclcpp executor. When calling arm.plan() / arm.getCurrentState() etc., MoveIt will internally wait for a response from the action/server or wait to subscribe to /joint_states The callback results. The handling of these returns/callbacks depends on the executor spin。
 int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
 
-    // 1) 创建 node
+    // 1) Create node
     auto node = std::make_shared<MoveJDemo>();
 
-    // 2) 创建 executor 并把 node 加进去
+    // 2) Create an executor and add the node in
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(node);
 
-    // 3) 启动 spin 线程（executor 会不断调度回调）
+    // 3) Start the spin thread (the executor will continuously schedule callbacks)）
     std::thread spinner([&executor]() {
         executor.spin();
     });
 
-    // 可选：给 executor 一点时间去发现 action server / topics
+    // Optional: Give the executor some time to discover action server / topics
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    // 4) 创建 MoveGroupInterface（或也可以提前创建，只要 spin 在运行即可）
+    // 4) Create MoveGroupInterface (or it can also be created in advance, as long as spin is running)）
     auto move_group = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node, "rokae_arm");     
     node->set_move_group(move_group);
 
-    // 再等一小会，保证 action/server/params 等被发现
+    // Wait a little longer to ensure that action/server/params are detected
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    // 5) 执行你的 blocking 流程（plan/execute）
+    // 5) Execute your blocking process（plan/execute）
     // node->movej();
 
-    // 两个关节目标，按顺序执行
+    // Two joint targets, executed in sequence
     std::vector<std::vector<double>> targets = {
-        {0.5, 0.5, 0.5, 0.5, 0.5, 0.5},  // 目标1（6轴示例）
-        // {1.0,  1.0, 1.0,  1.0, 1.0, 1.0}    // 目标2（6轴示例）
+        {0.5, 0.5, 0.5, 0.5, 0.5, 0.5},  // Target 1 (6-axis example）
+        // {1.0,  1.0, 1.0,  1.0, 1.0, 1.0}    // Target 2 (6-axis example）
     };
 
     bool ok = node->movej_sequence(targets);
     if (!ok) {
-        RCLCPP_ERROR(node->get_logger(), "顺序运动执行失败");
+        RCLCPP_ERROR(node->get_logger(), "Sequential movement execution failed");
     }
 
-    // 6) 结束：shutdown 并等待 spinner 退出
+    // 6) End: shutdown and wait for spinner to exit
     rclcpp::shutdown();
     spinner.join();
     return 0;
@@ -362,7 +362,7 @@ int main(int argc, char** argv)
 
 
 
-// /*循环执行轨迹规划*/
+// /*Loop execution trajectory planning*/
 // #include <rclcpp/rclcpp.hpp>
 // #include <moveit/move_group_interface/move_group_interface.h>
 // #include <controller_manager_msgs/srv/switch_controller.hpp>
@@ -382,11 +382,11 @@ int main(int argc, char** argv)
 //         controller_client_ = this->create_client<controller_manager_msgs::srv::SwitchController>(
 //             "/controller_manager/switch_controller");
 
-//         // 初始化关节限位
+//         // Initialize joint limits
 //         lower_limits_ = {-3.04, -3.04, -3.04, -3.04, -3.04, -3.04};
 //         upper_limits_ = {3.04, 3.04, 3.04, 3.04, 3.04, 3.04};
         
-//         // 初始化随机数生成器
+//         // Initialize the random number generator
 //         random_engine_ = std::mt19937(std::random_device{}());
 //     }
 
@@ -395,7 +395,7 @@ int main(int argc, char** argv)
 //         move_group_ = mg;
 //     }
 
-//     // 生成随机关节目标
+//     // Generate random joint targets
 //     std::vector<double> generate_random_joint_target()
 //     {
 //         std::vector<double> joint_target;
@@ -406,7 +406,7 @@ int main(int argc, char** argv)
 //             joint_target.push_back(dist(random_engine_));
 //         }
         
-//         RCLCPP_INFO(this->get_logger(), "生成随机关节目标: [%.3f, %.3f, %.3f, %.3f, %.3f, %.3f]", 
+//         RCLCPP_INFO(this->get_logger(), "Generate random joint targets: [%.3f, %.3f, %.3f, %.3f, %.3f, %.3f]", 
 //                    joint_target[0], joint_target[1], joint_target[2], 
 //                    joint_target[3], joint_target[4], joint_target[5]);
         
@@ -418,48 +418,48 @@ int main(int argc, char** argv)
 //         auto& arm = *move_group_;
 
 //         arm.setPlanningTime(45.0);
-//         arm.setPoseReferenceFrame("xMateCR7_base");    //换成相应的基座(在相应机型srdf下)
+//         arm.setPoseReferenceFrame("xMateCR7_base");    //Change to the corresponding base(Under the corresponding model SRDF)
 //         arm.allowReplanning(true);
 //         arm.setGoalPositionTolerance(0.2);
 //         arm.setGoalOrientationTolerance(0.2);
 //         arm.setMaxAccelerationScalingFactor(0.05);
 //         arm.setMaxVelocityScalingFactor(0.05);
 
-//         // 使用传入的关节目标
+//         // Use the incoming joint target
 //         arm.setJointValueTarget(joint_target);
 
 //         moveit::planning_interface::MoveGroupInterface::Plan plan;
 //         bool success = (arm.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
 //         if (success) {
-//             // 检查轨迹安全性
+//             // Check the trajectory safety
 //             bool safety = checkTrajectorySafety(plan.trajectory_);
             
 //             if (safety) {
-//                 RCLCPP_INFO(this->get_logger(), "轨迹安全，正在执行...");
+//                 RCLCPP_INFO(this->get_logger(), "Trajectory is secure, executing...");
 //                 auto result = arm.execute(plan);
                 
 //                 if (result != moveit::core::MoveItErrorCode::SUCCESS) {
-//                     RCLCPP_WARN(this->get_logger(), "执行失败，尝试重启控制器...");
+//                     RCLCPP_WARN(this->get_logger(), "Execution failed, try restarting the controller...");
 //                     arm.stop();
 //                     arm.clearPoseTargets();
 //                     arm.setStartStateToCurrentState();
 //                     reset_controller(kControllerName);
 //                     rclcpp::sleep_for(std::chrono::seconds(2));
 //                 } else {
-//                     RCLCPP_INFO(this->get_logger(), "轨迹执行成功");
+//                     RCLCPP_INFO(this->get_logger(), "Trajectory execution successful");
 //                 }
 //             } else {
-//                 RCLCPP_ERROR(this->get_logger(), "轨迹不安全，重新生成目标...");
-//                 // 轨迹不安全，返回false让主循环重新生成目标
+//                 RCLCPP_ERROR(this->get_logger(), "The trajectory is unsafe, regenerate the target...");
+//                 // The trajectory is unsafe, return false to let the main loop regenerate the target
 //                 return;
 //             }
 
 //         } else {
-//             RCLCPP_ERROR(this->get_logger(), "关节空间规划失败！");
+//             RCLCPP_ERROR(this->get_logger(), "Joint space planning failure！");
 //         }
         
-//         // 执行完成后等待一段时间
+//         // Wait for a period of time after execution is completed
 //         rclcpp::sleep_for(std::chrono::seconds(2));
 //     }
 
@@ -483,7 +483,7 @@ int main(int argc, char** argv)
                 
 //                 if (position < lower_limits_[j] || position > upper_limits_[j]) {
 //                     RCLCPP_WARN(this->get_logger(), 
-//                                "轨迹点 %zu, 关节 %zu 位置 %f 超出限位 [%f, %f]", 
+//                                "Trajectory point %zu, joint %zu position %f exceeds limit [%f, %f]", 
 //                                i, j, position, lower_limits_[j], upper_limits_[j]);
 //                     is_safe = false;           
 //                 }
@@ -494,39 +494,39 @@ int main(int argc, char** argv)
   
 //     bool reset_controller(const std::string& controller_name)
 //     {
-//         // 1. 检查服务是否可用
+//         // 1. Check if the service is available
 //         if (!controller_client_->wait_for_service(std::chrono::seconds(3))) {
-//             RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/switch_controller 不可用！");
+//             RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/switch_controller Not available！");
 //             return false;
 //         }
 
 //         auto request = std::make_shared<controller_manager_msgs::srv::SwitchController::Request>();
-//         // deactivate + activate 代替旧的 stop/start
+//         // deactivate + activate Replace the old stop/start
 //         request->deactivate_controllers.push_back(controller_name);
 //         request->activate_controllers.push_back(controller_name);
-//         request->strictness = controller_manager_msgs::srv::SwitchController::Request::STRICT; // 严格模式
-//         request->timeout = rclcpp::Duration::from_seconds(5.0); // 防止切换长时间卡住
+//         request->strictness = controller_manager_msgs::srv::SwitchController::Request::STRICT; // Strict mode
+//         request->timeout = rclcpp::Duration::from_seconds(5.0); // Prevent long pauses during switching
 
-//         // 2. 发送切换请求
+//         // 2. Send switch request
 //         auto future = controller_client_->async_send_request(request);
 //         if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) !=
 //             rclcpp::FutureReturnCode::SUCCESS)
 //         {
-//             RCLCPP_ERROR(this->get_logger(), "调用 /switch_controller 服务失败！");
+//             RCLCPP_ERROR(this->get_logger(), "Call /switch_controller Service failed！");
 //             return false;
 //         }
 
 //         if (!future.get()->ok) {
-//             RCLCPP_ERROR(this->get_logger(), "控制器切换失败，可能资源被占用！");
+//             RCLCPP_ERROR(this->get_logger(), "Controller switch failed, the resource may be occupied！");
 //             return false;
 //         }
 
-//         // 3. 查询控制器状态
+//         // 3. Query controller status
 //         auto list_client = this->create_client<controller_manager_msgs::srv::ListControllers>(
 //             "/controller_manager/list_controllers");
 
 //         if (!list_client->wait_for_service(std::chrono::seconds(3))) {
-//             RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/list_controllers 不可用！");
+//             RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/list_controllers Not available！");
 //             return false;
 //         }
 
@@ -538,7 +538,7 @@ int main(int argc, char** argv)
 //             if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), list_future) !=
 //                 rclcpp::FutureReturnCode::SUCCESS)
 //             {
-//                 RCLCPP_WARN(this->get_logger(), "查询控制器状态失败，重试中...");
+//                 RCLCPP_WARN(this->get_logger(), "Failed to query controller status, retrying...");
 //                 continue;
 //             }
 
@@ -546,19 +546,19 @@ int main(int argc, char** argv)
 //             for (const auto& ctrl : response->controller) {
 //                 if (ctrl.name == controller_name) {
 //                     if (ctrl.state == "active") {
-//                         RCLCPP_INFO(this->get_logger(), "控制器 [%s] 已经重新激活！", controller_name.c_str());
+//                         RCLCPP_INFO(this->get_logger(), "Controller [%s] Already reactivated！", controller_name.c_str());
 //                         return true;
 //                     } else {
-//                         RCLCPP_INFO(this->get_logger(), "控制器 [%s] 当前状态: %s, 等待中...",
+//                         RCLCPP_INFO(this->get_logger(), "Controller [%s] Current status: %s, waiting...",
 //                                     controller_name.c_str(), ctrl.state.c_str());
 //                     }
 //                 }
 //             }
 
-//             rclcpp::sleep_for(std::chrono::milliseconds(500)); // 等待再查
+//             rclcpp::sleep_for(std::chrono::milliseconds(500)); // Wait and check again
 //         }
 
-//         RCLCPP_ERROR(this->get_logger(), "控制器 [%s] 重启后未进入 active 状态！", controller_name.c_str());
+//         RCLCPP_ERROR(this->get_logger(), "Controller [%s] Did not enter active state after reboot！", controller_name.c_str());
 //         return false;
 //     }
 
@@ -568,48 +568,48 @@ int main(int argc, char** argv)
 // {
 //     rclcpp::init(argc, argv);
 
-//     // 创建 node
+//     // Create node
 //     auto node = std::make_shared<MoveJDemo>();
 
-//     // 创建 executor 并把 node 加进去
+//     // Create an executor and add the node in
 //     rclcpp::executors::MultiThreadedExecutor executor;
 //     executor.add_node(node);
 
-//     // 启动 spin 线程
+//     // Start spin thread
 //     std::thread spinner([&executor]() {
 //         executor.spin();
 //     });
 
-//     // 给 executor 一点时间去发现 action server / topics
+//     // Give the executor some time to discover action server / topics
 //     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-//     // 创建 MoveGroupInterface
+//     // Create MoveGroupInterface
 //     auto move_group = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node, "rokae_arm");
 //     node->set_move_group(move_group);
 
-//     // 再等一小会，保证 action/server/params 等被发现
+//     // Wait a little longer to ensure that action/server/params are detected
 //     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-//     RCLCPP_INFO(node->get_logger(), "开始随机关节目标循环运动...");
+//     RCLCPP_INFO(node->get_logger(), "Start random joint target cyclic movements...");
 
-//     // 主循环：不断生成随机目标并执行
+//     // Main loop: continuously generate random targets and execute
 //     int cycle_count = 0;
 //     while (rclcpp::ok()) {
 //         cycle_count++;
-//         RCLCPP_INFO(node->get_logger(), "=== 第 %d 次循环 ===", cycle_count);
+//         RCLCPP_INFO(node->get_logger(), "=== The %dth loop ===", cycle_count);
         
-//         // 生成随机关节目标
+//         // Generate random joint targets
 //         auto joint_target = node->generate_random_joint_target();
         
-//         // 执行运动
+//         // Perform exercise
 //         node->movej(joint_target);
         
-//         RCLCPP_INFO(node->get_logger(), "第 %d 次循环完成，准备下一次运动...", cycle_count);
+//         RCLCPP_INFO(node->get_logger(), "Cycle %d completed, preparing for the next exercise...", cycle_count);
 //     }
 
-//     RCLCPP_INFO(node->get_logger(), "节点关闭，停止运动循环");
+//     RCLCPP_INFO(node->get_logger(), "Node closed, stop movement loop");
 
-//     // 结束：shutdown 并等待 spinner 退出
+//     // End: shutdown and wait for spinner to exit
 //     rclcpp::shutdown();
 //     spinner.join();
 //     return 0;

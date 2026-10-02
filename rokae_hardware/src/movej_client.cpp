@@ -1,46 +1,46 @@
-// 文件名: simple_movej_client.cpp
+// File name: simple_movej_client.cpp
 #include <rclcpp/rclcpp.hpp>
 #include <rokae_msgs/srv/move_j.hpp>
 #include <iostream>
 
 int main(int argc, char** argv) {
-    // 初始化ROS 2
+    // InitializationROS 2
     rclcpp::init(argc, argv);
     
-    // 创建节点
+    // Create Node
     auto node = rclcpp::Node::make_shared("movej_client");
     
-    // 创建MoveJ服务客户端
+    // Create MoveJ service client
     auto movej_client = node->create_client<rokae_msgs::srv::MoveJ>("/rokae_driver/movej");
     
-    // 等待服务可用（最多等待10秒）
+    // Waiting for service to be available (wait up to 10 seconds)）
     if (!movej_client->wait_for_service(std::chrono::seconds(10))) {
-        RCLCPP_ERROR(node->get_logger(), "MoveJ服务不可用");
+        RCLCPP_ERROR(node->get_logger(), "MoveJService Unavailable");
         return 1;
     }
     
-    RCLCPP_INFO(node->get_logger(), "MoveJ服务已连接");
+    RCLCPP_INFO(node->get_logger(), "MoveJService connected");
     
-    // 创建请求消息
+    // Create request message
     auto request = std::make_shared<rokae_msgs::srv::MoveJ::Request>();
     
-    // 设置目标关节角度为 [1,1,1,1,1,1] 弧度
+    // Set target joint angle to [1,1,1,1,1,1] radian
     request->joint_positions = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
     
-    // 设置速度参数（根据你的回调函数，这是必需的）
-    request->velocity = 0.2;  // 可以调整速度值，例如 0.1 表示10%的最大速度
+    // Set the speed parameter (this is necessary according to your callback function)）
+    request->velocity = 0.2;  // The speed value can be adjusted, for example, 0.1 represents 10% of the maximum speed.
     
-    RCLCPP_INFO(node->get_logger(), "发送MoveJ请求");
-    RCLCPP_INFO(node->get_logger(), "目标关节角度: [%.2f, %.2f, %.2f, %.2f, %.2f, %.2f] rad",
+    RCLCPP_INFO(node->get_logger(), "Send MoveJ request");
+    RCLCPP_INFO(node->get_logger(), "Target joint angle: [%.2f, %.2f, %.2f, %.2f, %.2f, %.2f] rad",
                 request->joint_positions[0], request->joint_positions[1],
                 request->joint_positions[2], request->joint_positions[3],
                 request->joint_positions[4], request->joint_positions[5]);
-    RCLCPP_INFO(node->get_logger(), "速度: %.2f", request->velocity);
+    RCLCPP_INFO(node->get_logger(), "Speed: %.2f", request->velocity);
     
-    // 发送请求并等待响应
+    // Send the request and wait for a response
     auto future = movej_client->async_send_request(request);
     
-    // 等待服务响应（最多等待30秒，因为MoveJ可能需要时间执行）
+    // Waiting for service response (waiting up to 30 seconds, because MoveJ may take time to execute)）
     if (rclcpp::spin_until_future_complete(node, future, std::chrono::seconds(30)) == 
         rclcpp::FutureReturnCode::SUCCESS) {
         
@@ -48,21 +48,21 @@ int main(int argc, char** argv) {
             auto response = future.get();
             
             if (response->success) {
-                RCLCPP_INFO(node->get_logger(), "MoveJ执行成功: %s", response->message.c_str());
+                RCLCPP_INFO(node->get_logger(), "MoveJExecution successful: %s", response->message.c_str());
             } else {
-                RCLCPP_ERROR(node->get_logger(), "MoveJ执行失败: %s", response->message.c_str());
+                RCLCPP_ERROR(node->get_logger(), "MoveJExecution failed: %s", response->message.c_str());
                 return 1;
             }
         } catch (const std::exception& e) {
-            RCLCPP_ERROR(node->get_logger(), "异常: %s", e.what());
+            RCLCPP_ERROR(node->get_logger(), "Abnormal: %s", e.what());
             return 1;
         }
     } else {
-        RCLCPP_ERROR(node->get_logger(), "服务调用超时");
+        RCLCPP_ERROR(node->get_logger(), "Service call timeout");
         return 1;
     }
     
-    RCLCPP_INFO(node->get_logger(), "程序完成");
+    RCLCPP_INFO(node->get_logger(), "Program completed");
     rclcpp::shutdown();
     return 0;
 }

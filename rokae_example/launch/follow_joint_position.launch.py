@@ -45,7 +45,7 @@ def launch_setup(context, *args, **kwargs):
 	with open(srdf_file, "r", encoding="utf-8") as f:
 		srdf_content = f.read()
 
-	# URDF 根节点固定为 xMate_robot，SRDF 需保持同名避免 MoveIt 语义模型报错。
+	# URDF The root node is fixed as xMate_robot，SRDF The same name must be maintained to avoid errors in the MoveIt semantic model。
 	semantic_content = re.sub(
 		r'<robot\s+name\s*=\s*"[^"]+"',
 		r'<robot name="xMate_robot"',
@@ -97,11 +97,11 @@ def generate_launch_description():
 			default_value="CR7",
 			description="Robot type: CR7/CR12/CR18/CR20/CR35/ER3/ER7/SR3/SR4/SR5/Pro3/Pro7/AR5L/AR5R",
 		),
-		DeclareLaunchArgument("point_period_s", default_value="0.6", description="相邻轨迹点时间间隔（秒）"),
-		DeclareLaunchArgument("start_blend_s", default_value="0.6", description="首点预留平滑时间（秒）"),
-		DeclareLaunchArgument("goal_tolerance_rad", default_value="0.01", description="关节目标容差（弧度）"),
-		DeclareLaunchArgument("vel_scale", default_value="0.2", description="MoveIt 速度缩放(0,1]"),
-		DeclareLaunchArgument("acc_scale", default_value="0.2", description="MoveIt 加速度缩放(0,1]"),
-		DeclareLaunchArgument("cycle_count", default_value="0", description="往复循环次数，0 表示无限循环"),
+		DeclareLaunchArgument("point_period_s", default_value="0.6", description="Time interval between adjacent trajectory points (seconds）"),
+		DeclareLaunchArgument("start_blend_s", default_value="0.6", description="Initial point reserved smoothing time (seconds）"),
+		DeclareLaunchArgument("goal_tolerance_rad", default_value="0.01", description="Joint target tolerance (radians）"),
+		DeclareLaunchArgument("vel_scale", default_value="0.2", description="MoveIt Speed Scaling(0,1]"),
+		DeclareLaunchArgument("acc_scale", default_value="0.2", description="MoveIt Acceleration Scaling(0,1]"),
+		DeclareLaunchArgument("cycle_count", default_value="0", description="Number of cycles, 0 means infinite loop"),
 		OpaqueFunction(function=launch_setup),
 	])

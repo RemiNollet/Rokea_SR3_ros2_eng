@@ -210,7 +210,7 @@ def launch_setup(context, *args, **kwargs):
         f"/{trajectory_controller_name}/follow_joint_trajectory"
     )
 
-    # Gazebo Classic 对 package:// mesh URI 解析经常失败；这里强制用文件路径 URI
+    # Gazebo Classic Parsing of package:// mesh URIs often fails; here we force the use of file paths URI
     mesh_prefix = (Path(description_pkg) / "meshes").as_uri()
     robot_desc_xml = xacro.process_file(urdf_path, mappings={"mesh_prefix": mesh_prefix}).toxml()
     if not os.path.exists(gazebo_urdf_path):
@@ -281,7 +281,7 @@ def launch_setup(context, *args, **kwargs):
         output="screen"
     )
 
-    # 自动加载并激活控制器
+    # Automatically load and activate the controller
     spawn_joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
@@ -304,7 +304,7 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    # 顺序：先 joint_state_broadcaster，再 arm_controller
+    # Order: First joint_state_broadcaster，again arm_controller
     delayed_joint_state_spawner = TimerAction(
         period=2.0,
         actions=[spawn_joint_state_broadcaster],
@@ -333,7 +333,7 @@ def launch_setup(context, *args, **kwargs):
         delayed_movej = TimerAction(period=7.0, actions=[movej_node])
         actions.append(delayed_movej)
 
-    # ======================== 可选：GUI 控制节点 ========================
+    # ======================== Optional: GUI control node ========================
     if enable_gui:
         joint_state_publisher_gui = Node(
             package="joint_state_publisher_gui",
@@ -376,8 +376,8 @@ def generate_launch_description():
             "robot_type",
             default_value="CR7",
             description=(
-                "机型后缀；需存在 rokae_description/urdf/xMate{TYPE}_Gazebo.urdf.xacro 或 .urdf.xacro，"
-                "及 rokae_xMate{TYPE}_moveit_config、config/xMate{TYPE}_controllers.yaml。例 CR35、SR3。"
+                "Model suffix; must exist rokae_description/urdf/xMate{TYPE}_Gazebo.urdf.xacro or .urdf.xacro，"
+                "and rokae_xMate{TYPE}_moveit_config、config/xMate{TYPE}_controllers.yaml。Example CR35、SR3。"
             ),
         ),
         DeclareLaunchArgument(

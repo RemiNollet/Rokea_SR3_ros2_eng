@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""订阅 bumper ContactsState；持续接触期间按频率发布碰撞信号，无接触时不发布。"""
+"""Subscribe to bumper ContactsState; publish collision signals at a frequency during continuous contact, and do not publish when there is no contact。"""
 import rclpy
 from rclpy.node import Node
 from gazebo_msgs.msg import ContactsState
@@ -25,9 +25,9 @@ class CollisionTestNode(Node):
         self.declare_parameter('filter_robot_contacts', True)
         self.declare_parameter('log_interval_sec', 1.0)
         self.declare_parameter('print_collision_names', True)
-        # 无接触时不再打印“持续”日志；有接触时可按间隔打印
+        # No longer print 'continuous' logs when there is no contact; when there is contact, it can print at intervals
         self.declare_parameter('log_while_contact', True)
-        # 是否在持续接触时发布 std_msgs/Bool(data=True)（无接触时不发布任何消息）
+        # Whether to release during continuous contact std_msgs/Bool(data=True)（Do not send any messages when there is no contact）
         self.declare_parameter('publish_collision_signal', True)
         self.declare_parameter('collision_signal_topic', '/collision_test/contact_active')
         self.declare_parameter('collision_signal_hz', 10.0)
@@ -70,13 +70,13 @@ class CollisionTestNode(Node):
             .get_parameter_value().bool_value
         )
 
-        extra = f'；碰撞信号: {sig_topic} (仅接触中发布 True，频率≈{hz:.1f} Hz)' if self._sig_pub else ''
+        extra = f'；Collision signal: {sig_topic} (Publish True only on contact, frequency≈{hz:.1f} Hz)' if self._sig_pub else ''
         self.get_logger().info(
-            f'碰撞监听: {topic}；轨迹话题: {traj_topic}{extra}'
+            f'Collision Listener: {topic}；Trajectory topic: {traj_topic}{extra}'
         )
 
     def _pick_robot_contact(self, msg: ContactsState):
-        """返回 (是否含机器人相关接触, collision1, collision2)。"""
+        """Return (Does it involve contact related to robots?, collision1, collision2)。"""
         if len(msg.states) == 0:
             return False, "", ""
         for st in msg.states:
@@ -103,17 +103,17 @@ class CollisionTestNode(Node):
 
         extra = ""
         if self._print_collision_names and c1 and c2:
-            extra = f"；碰撞体: [{c1}] <-> [{c2}]"
+            extra = f"；Collider: [{c1}] <-> [{c2}]"
 
         if pair_changed:
             self.get_logger().warning(
-                f'检测到碰撞接触开始 (本帧 states={len(msg.states)}, 累计采样={self._hits}){extra}'
+                f'Collision contact detected (This frame states={len(msg.states)}, Cumulative sampling={self._hits}){extra}'
             )
         elif self._log_while_contact:
             if (now - self._last_log_time).nanoseconds >= self._log_interval_sec * 1e9:
                 self._last_log_time = now
                 self.get_logger().warning(
-                    f'碰撞接触持续中 (本帧 states={len(msg.states)}, 累计采样={self._hits}){extra}'
+                    f'Collision contact ongoing (This frame states={len(msg.states)}, Cumulative sampling={self._hits}){extra}'
                 )
 
         if self._sig_pub is not None:

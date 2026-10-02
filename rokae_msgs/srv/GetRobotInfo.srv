@@ -1,10 +1,10 @@
-# 获取机器人基本信息
+# Get basic robot information
 
 ---
 bool success
 string message
-string version           # 控制器版本号
-string type             # 机器人机型
-string sdk_version      # xCore-SDK版本
-# float64[] joint_positions  # 当前关节角度 [rad]
-# float64[] cartesian_pose   # 当前笛卡尔位姿 [x, y, z, rx, ry, rz]
+string version           # Controller version
+string type             # Robot model
+string sdk_version      # xCore SDK version
+# float64[] joint_positions  # Current joint angles [rad]
+# float64[] cartesian_pose   # Current Cartesian pose [x, y, z, rx, ry, rz]

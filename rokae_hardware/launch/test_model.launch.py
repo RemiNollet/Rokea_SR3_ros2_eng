@@ -115,7 +115,7 @@ def _strip_xml_comments_for_gazebo_ros2(robot_desc_xml: str) -> str:
 
 
 def _resolve_gazebo_controller_params_path(robot_desc_xml, controllers_yaml_path):
-    """Gazebo 插件需绝对路径加载控制器 YAML（与 CR7 一致）。"""
+    """Gazebo The plugin needs an absolute path to load the controller YAML (consistent with CR7)）。"""
     abs_path = os.path.abspath(controllers_yaml_path)
     return re.sub(
         r"(<parameters>)([^<]*controllers\.yaml)(</parameters>)",
@@ -312,15 +312,15 @@ def generate_launch_description():
             "robot_type",
             default_value="CR7",
             description=(
-                "机型后缀，对应 urdf/xMate{TYPE}_*.xacro 与 "
-                "rokae_hardware/config/xMate{TYPE}_controllers.yaml。例 CR35、CR7、SR3、Pro3。"
+                "Model suffix, corresponds to urdf/xMate{TYPE}_*.xacro and "
+                "rokae_hardware/config/xMate{TYPE}_controllers.yaml。Example CR35、CR7、SR3、Pro3。"
             ),
         ),
         DeclareLaunchArgument(
             "gazebo_world_file",
             default_value="empty.world",
             description=(
-                "rokae_gazebo/worlds 下文件名（empty.world、obstacles.world）或绝对路径；与机型无关。"
+                "rokae_gazebo/worlds Enter the file name (empty.world, obstacles.world) or absolute path; independent of the robot model。"
             ),
         ),
         DeclareLaunchArgument("spawn_z", default_value="0.0"),

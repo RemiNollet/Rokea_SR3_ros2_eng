@@ -45,13 +45,13 @@ class GuiToTrajectory(Node):
                 self, FollowJointTrajectory, self._action_name
             )
             self.get_logger().info(
-                f'GUI->轨迹: FollowJointTrajectory ({self._action_name})'
+                f'GUI->Trajectory: FollowJointTrajectory ({self._action_name})'
             )
         else:
             self._pub = self.create_publisher(
                 JointTrajectory, self._trajectory_topic, 10
             )
-            self.get_logger().info(f'GUI->轨迹: 话题 {self._trajectory_topic}')
+            self.get_logger().info(f'GUI->Trajectory: Topic {self._trajectory_topic}')
 
         self.last_pub_time = self.get_clock().now()
         self.pub_interval = rclpy.duration.Duration(seconds=0.1)
@@ -60,7 +60,7 @@ class GuiToTrajectory(Node):
     def _build_trajectory(self, positions):
         traj = JointTrajectory()
         traj.joint_names = list(self.joint_names)
-        # 0 时间戳表示“立即执行”，避免与 /clock 对齐问题导致整段被判为“已过期”
+        # 0 The timestamp indicates 'execute immediately,' avoiding the issue where alignment with /clock causes the entire segment to be marked as 'expired'.”
         traj.header.stamp = Time(sec=0, nanosec=0)
         point = JointTrajectoryPoint()
         point.positions = positions
@@ -93,8 +93,8 @@ class GuiToTrajectory(Node):
                 if not self._action_client.wait_for_server(timeout_sec=0.0):
                     if not self._warned_no_server:
                         self.get_logger().warn(
-                            f'FollowJointTrajectory 未就绪: {self._action_name}'
-                            '（等待 joint_trajectory_controller 激活）'
+                            f'FollowJointTrajectory Not ready: {self._action_name}'
+                            '（Waiting joint_trajectory_controller Activate）'
                         )
                         self._warned_no_server = True
                     return
@@ -115,10 +115,10 @@ class GuiToTrajectory(Node):
                 return
             if not goal_handle.accepted:
                 self.get_logger().warning(
-                    'FollowJointTrajectory 目标被拒绝（检查控制器是否为 active）'
+                    'FollowJointTrajectory Target rejected (check whether the controller is active）'
                 )
         except Exception as e:
-            self.get_logger().error(f'发送 FollowJointTrajectory 失败: {e}')
+            self.get_logger().error(f'Failed to send FollowJointTrajectory: {e}')
 
 
 def main(args=None):

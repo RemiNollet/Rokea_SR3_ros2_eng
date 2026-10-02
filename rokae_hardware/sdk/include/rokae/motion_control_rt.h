@@ -1,6 +1,6 @@
 ﻿/**
  * @file motion_control_rt.h
- * @brief 实时模式运动控制
+ * @brief Real-time mode motion control
  * @copyright Copyright (C) 2025 ROKAE (Beijing) Technology Co., LTD. All Rights Reserved.
  * Information in this file is the intellectual property of Rokae Technology Co., Ltd,
  * And may contains trade secrets that must be stored and viewed confidentially.
@@ -31,7 +31,7 @@ namespace rokae {
 
 /**
  * @class BaseMotionControl
- * @brief 运动控制通用类
+ * @brief General Motion Control Class
  */
  class XCORE_API BaseMotionControl : public Base<BaseMotionControl> {
   public:
@@ -47,159 +47,159 @@ namespace rokae {
 
  /**
   * @class MotionControl<MotionControlMode::RtCommand>
-  * @brief 实时模式运动控制通用类
+  * @brief Real-time Mode Motion Control General Class
   */
  template <>
  class XCORE_API MotionControl<MotionControlMode::RtCommand> : public BaseMotionControl {
   public:
    /**
     * @brief constructor
-    * @throw NetworkException 网络连接错误
+    * @throw NetworkException Network connection error
     */
    MotionControl(std::shared_ptr<XService> sdkRpc, XService *_rtRpc, DataReceiver *recv, const std::string &localIp);
    virtual ~MotionControl() noexcept;
 
    // *********************************************************************
-   // *******************           网络连接           **********************
+   // *******************           Network connection           **********************
 
    /**
-    * @brief 断开与实时控制服务器的连接, 关闭数据接收和指令发送端口。不会断开和机器人的连接。
-    * 若机器人在运动，断开后会立即停止运动
+    * @brief Disconnect from the real-time control server, close the data receiving and command sending ports. This will not disconnect from the robot.。
+    * If the robot is in motion, it will stop immediately once disconnected.
     */
    void disconnectNetwork() noexcept;
 
    /**
-    * @brief 重新连接到实时控制服务器
-    * @param[out] ec 错误码
+    * @brief Reconnect to the real-time control server
+    * @param[out] ec Error code
     */
    void reconnectNetwork(error_code &ec) noexcept;
 
    // *********************************************************************
-   // *******************           控制方式           **********************
+   // *******************           Control method           **********************
 
    /**
-    * @brief 使用周期调度，设置回调函数。
-    * @note 1) 回调函数应按照1毫秒为周期规划运动命令，规划结果为函数的返回值。SDK对返回值进行滤波处理后发送给控制器。
-    *       2) JointPosition的关节角度数组长度，和Torque的关节力矩值数组长度应和机器人轴数相同。若不同不会报错，但有可能造成不合理的命令
-    *       3) 一次运动循环结束时，可以通过返回的Command.setFinish()的方式来标识，SDK内部会负责停止运动以及停止调用回调函数
+    * @brief Use periodic scheduling and set a callback function。
+    * @note 1) The callback function should plan motion commands with a cycle of 1 millisecond, and the planning result is the return value of the function. The SDK filters the return value before sending it to the controller.。
+    *       2) JointPositionThe length of the joint angle array and the length of the Torque joint torque array should be the same as the number of robot axes. If they are different, an error will not be reported, but it may result in unreasonable commands.
+    *       3) At the end of an exercise cycle, it can be returned byCommand.setFinish()to identify, the SDK will handle stopping the motion and stopping the invocation of callback functions
     * @tparam Command JointPosition | CartesianPosition | Torque
-    * @param[in] callback 回调函数。根据控制模式(RtControllerMode)不同，函数返回值有3种: 关节角度/笛卡尔位姿/力矩。
-    * 其中笛卡尔位姿使用旋转矩阵表示旋转量，pos为末端相对于基坐标系的位姿。
-    * @param[in] priority 任务优先级, 0为不指定。此参数仅当使用实时操作系统时生效，若无法设置会打印控制台错误信息。
-    * @param[in] useStateDataInLoop 是否需要在周期内读取状态数据。当设置为true时：
-    *       1) xCore-SDK会在回调函数之前更新实时状态数据(updateStateData()),在回调函数内直接getStateData()即可;
-    *       2) 状态数据的发送周期应和控制周期一致, 为1ms: startReceiveRobotState(interval = milliseconds(1));
+    * @param[in] callback Callback function. According to the control mode(RtControllerMode)Different, function return values have 3 types: joint angles/Cartesian pose/torque。
+    * Among them, the Cartesian pose uses a rotation matrix to represent the rotation, and pos is the pose of the end relative to the base coordinate system.。
+    * @param[in] priority Task priority, 0 means unspecified. This parameter only takes effect when using a real-time operating system. If it cannot be set, an error message will be printed to the console.。
+    * @param[in] useStateDataInLoop Whether it is necessary to read status data during the cycle. When set to true：
+    *       1) xCore-SDKWill update real-time state data before the callback function(updateStateData()),Directly inside the callback functiongetStateData()That's it;
+    *       2) The sending period of status data should be consistent with the control cycle, which is1ms: startReceiveRobotState(interval = milliseconds(1));
     */
    template<class Command>
    void setControlLoop(const std::function<Command(void)>& callback, int priority = 0, bool useStateDataInLoop = false) noexcept;
 
    /**
-    * @brief 开始执行回调函数。
-    * @param[in] blocking 是否阻塞调用此函数的线程。若为非阻塞线程，需调用stopLoop()停止调度任务，否则无法开始下一次循环周期。
-    * @throw RealtimeControlException 命令发送网络异常; 或命令类型与控制模式不匹配; 或控制器执行已发送命令时发生错误
+    * @brief Start executing the callback function。
+    * @param[in] blocking Whether to block the thread that calls this function. If it is a non-blocking thread, it needs to callstopLoop()Stop scheduling tasks, otherwise the next cycle cannot start。
+    * @throw RealtimeControlException Network error when sending command; Or the command type does not match the control mode; An error occurred while the device or controller was executing the sent command
     */
    void startLoop(bool blocking = true);
 
    /**
-    * @brief 停止执行周期性调度任务
-    * @throw RealtimeControlException 执行过程中发生异常
+    * @brief Stop executing periodic scheduled tasks
+    * @throw RealtimeControlException An exception occurred during execution
     */
    void stopLoop();
 
    /**
-    * @brief 机器人停止运动，停止接收客户端发送的运动指令。
-    * @note 另外，JointPosition/CartesianPosition/Torque指令可通过setFinished()标识一次运动循环结束，标识后会机器人停止运动，
-    * 呈现的效果和调用stopMove()一样。
-    * 此函数仅用于实时控制，不可以用于停止非实时运动指令。
-    * @throw RealtimeMotionException 停止运动失败
+    * @brief The robot stops moving and stops receiving motion commands sent by the client.。
+    * @note In addition, the JointPosition/CartesianPosition/Torque commands can be sent throughsetFinished()Indicates the end of a movement cycle; after indicating, the robot will stop moving.，
+    * The presented effect and invocationstopMove()The same。
+    * This function is only for real-time control and cannot be used to stop non-real-time motion commands.。
+    * @throw RealtimeMotionException Failed to stop the exercise
     */
    void stopMove();
 
    /**
-    * @brief 发送JointPosition/CartesianPosition/Torque命令。适用于不使用调度周期，程序直接发送命令。
-    * @note 开始运动后，持续调用此函数发送运动命令。由于控制器执行命令的周期为1ms，发送命令的间隔也需要控制在1ms，
-    * 如果发送间隔过长会判断为通信丢包，间隔过短会造成伺服报错。
-    * 直接发送命令的话就不需要用调度周期了，setControlLoop(), startLoop(), stopLoop()等相关函数都不需要。
-    * 实时运动报错可通过BaseRobot::updateRobotState()获知，有报错会抛出异常；
-    * 需要调用Robot_T::startReceiveRobotState()接收数据，建议间隔为1ms，避免报错信息被覆盖
-    * @param[in] cmd 根据控制模式(RtControllerMode)不同，有3种运动命令: 关节角度/笛卡尔位姿/力矩
-    * @throw ArgumentException 指令数值存在非法值
-    * @throw RealtimeStateException 未开始运动
-    * @throw RealtimeControlException 命令发送网络异常; 或命令类型与控制模式不匹配; 或控制器执行已发送命令时发生错误
+    * @brief Send JointPosition/CartesianPosition/Torque commands. Suitable for programs that send commands directly without using a scheduling cycle.。
+    * @note After starting the motion, continuously call this function to send motion commands. Since the controller executes commands in cycles of 1 ms, the interval between sending commands also needs to be controlled within1ms，
+    * If the sending interval is too long, it will be judged as a communication packet loss; if the interval is too short, it will cause a servo error.。
+    * If you send the command directly, there is no need to use the scheduling cycle.，setControlLoop(), startLoop(), stopLoop()None of the related functions are needed。
+    * Real-time motion errors can be handled throughBaseRobot::updateRobotState()Be aware that an error will throw an exception；
+    * Need to callRobot_T::startReceiveRobotState()Receive data, it is recommended to interval by 1ms to avoid error messages being overwritten
+    * @param[in] cmd According to the control mode(RtControllerMode)Different, there are 3 types of motion commands: joint angles/cartesian poses/torque
+    * @throw ArgumentException The instruction contains an illegal value
+    * @throw RealtimeStateException Not started exercising
+    * @throw RealtimeControlException Network error when sending command; Or the command type does not match the control mode; An error occurred while the device or controller was executing the sent command
     */
    template<class Command>
    void sendCommand(const Command &cmd);
 
    // *********************************************************************
-   // *****************        获取机器人实时状态数据        ******************
+   // *****************        Obtain real-time robot status data        ******************
 
    /**
-    * @brief 让机器人开始发送实时状态数据。阻塞等待收到第一帧消息，超时时间为3秒
-    * @param[in] fields 接收的机器人状态数据, 最大总长度为1024个字节
-    * @throw RealtimeControlException 设置了不支持的状态数据；或机器人无法开始发送数据；或总长度超过1024
-    * @throw RealtimeStateException 已经开始发送数据；或超时后仍未收到第一帧数据
+    * @brief Start the robot sending real-time status data. Block and wait to receive the first frame message, with a timeout of 3 seconds.
+    * @param[in] fields Received robot status data, with a maximum total length of 1024 bytes
+    * @throw RealtimeControlException Set unsupported status data; or the robot cannot start sending data; or the total length exceeds1024
+    * @throw RealtimeStateException Data transmission has already started; or the first frame of data has not been received after a timeout
     */
    [[deprecated("Use Robot_T::startReceiveRobotState(interval, fields) instead")]]
    void startReceiveRobotState(const std::vector<std::string>& fields);
 
    /**
-    * @brief 停止接收实时状态数据，同时控制器停止发送。可用于重新设置要接收的状态数据。
-    * 调用此函数后，实时运动的错误信息也会停止接收，建议在运动停止时调用。
+    * @brief Stop receiving real-time status data, while the controller stops sending. Can be used to reset the status data to be received.。
+    * After calling this function, error messages from real-time motion will also stop being received. It is recommended to call it when the motion stops.。
     */
    [[deprecated("Use BaseRobot::stopReceiveRobotState() instead")]]
    void stopReceiveRobotState() noexcept;
 
    /**
-    * @brief 更新机器人状态数据到当前最新
-    * @note 通过setControlLoop()设置的回调在每次执行时会更新一次状态数据，因此不需要在回调函数中调用此接口
-    * @throw RealtimeStateException 控制器处理运动命令时出错，错误位被置位
-    * @throw RealtimeControlException 无法收到数据；或收到的数据有错误导致无法解析
+    * @brief Update robot status data to the latest
+    * @note throughsetControlLoop()The set callback updates the status data each time it is executed, so there is no need to call this interface within the callback function.
+    * @throw RealtimeStateException An error occurred while the controller was processing the motion command, and the error bit was set.
+    * @throw RealtimeControlException Unable to receive data; or the received data has errors that make it impossible to parse
     */
    [[deprecated("Use BaseRobot::updateRobotState() instead")]]
    void updateRobotState();
 
    /**
-    * @brief 读取机器人状态数据
-    * @note 注意传入的data类型要和数据类型一致。
-    * @tparam R 数据类型
-    * @param[in] fieldName 数据名
-    * @param[out] data 数值
-    * @return 若无该数据名；或未通过startReceiveRobotState()设置为要接收的数据；或该数据类型和R不符，返回-1。
-    * 成功读取返回0。
-    * @throw RealtimeStateException 网络错误
+    * @brief Read robot status data
+    * @note Make sure the type of the passed-in data matches the data type。
+    * @tparam R Data Type
+    * @param[in] fieldName Data Name
+    * @param[out] data Numerical value
+    * @return If there is no such data name; or it has not passedstartReceiveRobotState()Set as the data to be received; or the data type does not match R, return-1。
+    * Successfully read return0。
+    * @throw RealtimeStateException Network error
     */
    template<typename R>
    [[deprecated("Use BaseRobot::getStateData(fieldName, data) instead")]]
    int getStateData(const std::string &fieldName, R &data);
 
-   // *******************          ServoJ相关          *********************
+   // *******************          ServoJRelated          *********************
 
    /**
-    * @brief 通过实时模式sendCommand下发关节位置，开放调用周期、增益和前瞻时间的设置，且开启servoJ功能
-    * @param[in] ServoJ_T 下发关节位置时调用servoJ的周期, 单位s
-    * @param[in] ServoJ_Lookahead 前瞻时间，对下发关节位置后运动速度的限制, 单位s
-    * @param[in] ServoJ_Kp 控制增益
-    * @param[out] ec 错误码
+    * @brief Issue joint positions through the real-time mode sendCommand, allowing the setting of cycle, gain, and look-ahead time, and enable the servoJ function.
+    * @param[in] ServoJ_T When sending the joint position, call the cycle of servoJ, units
+    * @param[in] ServoJ_Lookahead Look-ahead time, limit on motion speed after issuing joint positions, units
+    * @param[in] ServoJ_Kp Control Gain
+    * @param[out] ec Error code
     */
    void setServoJoint(double ServoJ_T, double ServoJ_Lookahead, double ServoJ_Kp, error_code &ec) noexcept;
 
    /**
-    * @brief 关闭servoJ功能，停止使用setServoJoint需要进行关闭
+    * @brief Turn off the servoJ function; stopping the use of setServoJoint requires turning it off.
     */
    void stopServoJoint() noexcept;
 
    // *********************************************************************
-   // ********************          其他操作            *********************
+   // ********************          Other operations            *********************
 
    /**
-    * @brief 实时模式运动是否发生了运动错误
-    * @return true - 有报错
+    * @brief Did a motion error occur in real-time mode motion?
+    * @return true - There is an error
     */
    bool hasMotionError() noexcept;
 
    /**
-    * @brief 当错误发生后，自动恢复机器人。
-    * @param[out] ec 错误码
+    * @brief Automatic recovery robot when an error occurs。
+    * @param[out] ec Error code
     */
    void automaticErrorRecovery(error_code &ec) noexcept;
 
@@ -210,100 +210,100 @@ namespace rokae {
 
  /**
   * @class RtMotionControl
-  * @brief 实时模式运动控制
-  * @tparam DoF 轴数
+  * @brief Real-time mode motion control
+  * @tparam DoF Number of axles
   */
  template <WorkType Wt, unsigned short DoF>
  class XCORE_API RtMotionControl : public MotionControl<MotionControlMode::RtCommand> {
   public:
    /**
     * @brief constructor
-    * @throw NetworkException 网络连接错误
+    * @throw NetworkException Network connection error
     */
    RtMotionControl(std::shared_ptr<XService> sdkRpc, XService *rtRpc, DataReceiver *recv, const std::string &localIp);
 
    // **********************************************************************
-   // ***************           控制模式 & 发送运动指令          ***************
+   // ***************           Control mode & Send motion command          ***************
 
    /**
-    * @brief 指定控制模式，机器人准备开始运动，在每段回调执行前需要先调用此接口。
-    * 调用此接口机器人不会立即开始运动, 而是有运动命令发送后才会开始。
-    * @param[in] rtMode 控制模式
-    * @note 1) 在startMove之前应将参数依次设置好，例如滤波阻抗参数等等，设置完成后再调用startMove()。
-    * 在调用startMove后执行其他指令可能会失败，例如下电等操作。正确停止方法是调用stopMove。
-    * @throw RealtimeStateException 已经开始运动运动后重复调用
-    * @throw RealtimeParameterException 指定了不支持的控制模式
-    * @throw RealtimeControlException 控制器无法切换到该控制模式，多出现于切换到力控模式时
+    * @brief Specify the control mode, the robot is ready to start moving, and this interface needs to be called before each callback execution。
+    * Calling this interface will not make the robot move immediately; it will only start after a movement command is sent.。
+    * @param[in] rtMode Control mode
+    * @note 1) Before startMove, the parameters should be set in order, such as filter impedance parameters, etc. After the settings are completed, then call it.startMove()。
+    * Executing other commands after calling startMove may fail, such as powering down operations. The correct way to stop is to callstopMove。
+    * @throw RealtimeStateException Has already started exercise; repeat call after exercise
+    * @throw RealtimeParameterException An unsupported control mode was specified
+    * @throw RealtimeControlException The controller cannot switch to this control mode, which occurs more often when switching to force control mode.
     */
    void startMove(RtControllerMode rtMode);
 
    // *********************************************************************
-   // *******************           参数设置           **********************
+   // *******************           Parameter Settings           **********************
 
    /**
-    * @brief 设置限幅滤波参数.
-    * @param[in] limit_rate true - 限幅开启
-    * @param[in] cutoff_frequency 截止频率。范围是0 ~ 1000Hz，建议10~100Hz.
-    * @return true - 设定成功
+    * @brief Set amplitude limiting filter parameters.
+    * @param[in] limit_rate true - Amplitude Limiting On
+    * @param[in] cutoff_frequency Cutoff frequency. The range is0 ~ 1000Hz，Suggestion10~100Hz.
+    * @return true - Setting successful
     */
    bool setFilterLimit(bool limit_rate, double cutoff_frequency) noexcept;
 
    /**
-    * @brief 设置笛卡尔空间运动区域，超过设置区域运动会停止。
-    * 非力控虚拟墙。若机器人末端或TCP末端超过安全区域，电机同样会做下电处理。
-    * @param[in] lengths 安全区域长方体长宽高，对应XYZ, 单位: 米
-    * @param[in] frame 安全区域长方体中心相对于基坐标系位姿
-    * @param[out] ec 错误码
+    * @brief Set the Cartesian space motion area; movement beyond the set area will stop.。
+    * Non-force-controlled virtual wall. If the robot's end or the TCP end exceeds the safety area, the motor will also perform a power-down process.。
+    * @param[in] lengths The length, width, and height of the safe zone cuboid, corresponding to XYZ, unit: meters
+    * @param[in] frame Pose of the center of the safety zone cuboid relative to the base coordinate system
+    * @param[out] ec Error code
     */
    void setCartesianLimit(const std::array<double, 3> &lengths, const std::array<double, 16> &frame, error_code &ec) noexcept;
 
    /**
-    * @brief 设置末端执行器相对于机器人法兰的位姿，设置TCP后控制器会保存配置，机器人重启后恢复默认设置。
-    * @param[in] frame 末端执行器坐标系相对于法兰坐标系的齐次矩阵，单位: rad, m
-    * @param[out] ec 错误码
+    * @brief Set the pose of the end effector relative to the robot flange. After setting the TCP, the controller will save the configuration and restore the default settings after the robot restarts.。
+    * @param[in] frame Homogeneous matrix of the end-effector coordinate system relative to the flange coordinate system, unit: rad, m
+    * @param[out] ec Error code
     */
    void setEndEffectorFrame(const std::array<double, 16> &frame, error_code &ec) noexcept;
 
    /**
-    * @brief 设置工具和负载的质量、质心和惯性矩阵。设置负载后控制器会保存负载配置，机器人重启后恢复默认设置。
-    * @param[in] load 负载信息
-    * @param[out] ec 错误码
+    * @brief Set the mass, center of mass, and inertia matrix of the tool and payload. After setting the payload, the controller will save the payload configuration and restore the default settings when the robot restarts.。
+    * @param[in] load Load Information
+    * @param[out] ec Error code
     */
    void setLoad(const Load &load, error_code &ec) noexcept;
 
    // *************************************************************************
-   // *****************            Move指令 (上位机规划)         *****************
+   // *****************            MoveInstruction (Upper computer planning)         *****************
 
    /**
-    * @brief MoveJ指令，上位机规划路径，在到达target之前处于处于阻塞状态。如果运动中发生错误将停止阻塞状态并返回。
-    * @note 已不建议使用，请使用非实时模式指令MoveAbsJCommand。
-    * @param[in] speed 速度比例系数
-    * @param[in] start 起始关节角度，需要是机器人当前关节角度，否则可能造成下电。
-    * @param[in] target 机器人目标关节角度
-    * @throw RealtimeMotionException 机器人运动过程中发生错误
+    * @brief MoveJCommand: The upper computer plans the path and remains in a blocked state until reaching the target. If an error occurs during movement, the blocked state will stop and return.。
+    * @note No longer recommended; please use non-real-time mode commandsMoveAbsJCommand。
+    * @param[in] speed Speed ratio coefficient
+    * @param[in] start The starting joint angles need to be the robot's current joint angles, otherwise it may cause a power-off.。
+    * @param[in] target Robot target joint angle
+    * @throw RealtimeMotionException An error occurred during the robot's movement
     */
    void MoveJ(double speed, const std::array<double, DoF>& start, const std::array<double, DoF>& target);
 
    /**
-    * @brief MoveL指令，上位机规划路径，在到达target之前处于处于阻塞状态。如果运动中发生错误将停止阻塞状态并返回。
-    * @note 已不建议使用，请使用非实时模式指令MoveLCommand。
-    * @param[in] speed 速度比例系数, 范围 0 - 1
-    * @param[in] start 起始位姿, 需要是机器人当前位姿，否则可能造成下电。如果设置了TCP，那么应该是工具相对于基坐标系的位姿。
-    * @param[in] target 机器人目标位姿。同理如果设置了TCP，应是TCP相对于基坐标系的位姿
-    * @throw RealtimeParameterException 起始或目标位姿参数错误
-    * @throw RealtimeMotionException 机器人运动过程中发生错误
+    * @brief MoveLCommand: The upper computer plans the path and remains in a blocked state until reaching the target. If an error occurs during movement, the blocked state will stop and return.。
+    * @note No longer recommended; please use non-real-time mode commandsMoveLCommand。
+    * @param[in] speed Speed ratio coefficient, range 0 - 1
+    * @param[in] start The starting pose needs to be the robot's current pose, otherwise it may cause a power outage. If a TCP is set, it should be the pose of the tool relative to the base coordinate system.。
+    * @param[in] target Robot target pose. Similarly, if a TCP is set, it should be the pose of the TCP relative to the base coordinate system.
+    * @throw RealtimeParameterException Error in the initial or target pose parameters
+    * @throw RealtimeMotionException An error occurred during the robot's movement
     */
    void MoveL(double speed, CartesianPosition& start, CartesianPosition& target);
 
    /**
-    * @brief MoveC指令，在到达target之前处于阻塞状态。如果运动中发生错误将停止阻塞状态并返回。
-    * @note 已不建议使用，请使用非实时模式指令MoveCCommand。
-    * @param[in] speed 速度比例系数
-    * @param[in] start 机器人起始位姿, 需要是机器人当前位姿。如果设置了TCP，那么应该是工具相对于基坐标系的位姿。
-    * @param[in] aux 机器人辅助点位姿。同理如果设置了TCP，应是TCP相对于基坐标系的位姿
-    * @param[in] target 机器人目标位姿。同理如果设置了TCP，应是TCP相对于基坐标系的位姿
-    * @throw RealtimeParameterException 点位错误, 无法计算出圆弧路径
-    * @throw RealtimeMotionException 机器人运动过程中发生错误
+    * @brief MoveCThe command is in a blocked state until reaching the target. If an error occurs during movement, the blocked state will stop and return.。
+    * @note No longer recommended; please use non-real-time mode commandsMoveCCommand。
+    * @param[in] speed Speed ratio coefficient
+    * @param[in] start The robot's initial pose needs to be the robot's current pose. If the TCP is set, it should be the pose of the tool relative to the base coordinate system.。
+    * @param[in] aux Robot-assisted point pose. Similarly, if the TCP is set, it should be the pose of the TCP relative to the base coordinate system.
+    * @param[in] target Robot target pose. Similarly, if a TCP is set, it should be the pose of the TCP relative to the base coordinate system.
+    * @throw RealtimeParameterException Coordinate error, unable to calculate the arc path
+    * @throw RealtimeMotionException An error occurred during the robot's movement
     */
    void MoveC(double speed, CartesianPosition& start, CartesianPosition& aux, CartesianPosition& target);
 
@@ -311,8 +311,8 @@ namespace rokae {
 
  /**
   * @class RtMotionControlCobot
-  * @brief 协作机型实时运动控制类
-  * @tparam DoF 轴数
+  * @brief Collaborative Robot Real-Time Motion Control Class
+  * @tparam DoF Number of axles
   */
  template <unsigned short DoF>
  class XCORE_API RtMotionControlCobot: public RtMotionControl<WorkType::collaborative, DoF> {
@@ -320,69 +320,69 @@ namespace rokae {
    using RtMotionControl<WorkType::collaborative, DoF>::RtMotionControl;
 
    // *********************************************************************
-   // *******************           参数设置           **********************
+   // *******************           Parameter Settings           **********************
 
    /**
-    * @brief 设置轴空间阻抗控制系数，轴空间阻抗运动时生效
-    * @param[in] factor 轴空间阻抗系数，单位: Nm/rad
-    * xMateErPro机型最大刚度为 { 3000, 3000, 3000, 3000, 300, 300, 300 }
-    * 六轴机型最大刚度为 { 3000, 3000, 3000, 300, 300, 300 }
-    * 五轴机型最大刚度为 { 3000, 3000, 3000, 300, 300 }
-    * 实际有效的最大值和传感器等硬件状态有关系，如发生抖动等现象，请尝试减小阻抗系数。
-    * @param[out] ec 错误码
+    * @brief Set the Cartesian space impedance control coefficient, effective during Cartesian space impedance motion
+    * @param[in] factor Axial space impedance coefficient, unit: Nm/rad
+    * xMateErProThe maximum stiffness of the model is { 3000, 3000, 3000, 3000, 300, 300, 300 }
+    * The maximum stiffness of the six-axis model is { 3000, 3000, 3000, 300, 300, 300 }
+    * The maximum rigidity of the five-axis model is { 3000, 3000, 3000, 300, 300 }
+    * The actual effective maximum value is related to the hardware status such as the sensor. If phenomena like jitter occur, please try reducing the impedance coefficient.。
+    * @param[out] ec Error code
     */
    void setJointImpedance(const std::array<double, DoF> &factor, error_code &ec) noexcept;
 
    /**
-    * @brief 设置笛卡尔空间阻抗控制系数, 笛卡尔阻抗运动时生效
-    * @param[in] factor 阻抗系数[ X, Y, Z, Rx, Ry, Rz], 最大值为 { 3000, 3000, 3000, 300, 300, 300 }, 单位: N/m, Nm/rad
-    * 实际有效的最大值和传感器等硬件状态有关系，如发生抖动等现象，请尝试减小阻抗系数。
-    * @param[out] ec 错误码
+    * @brief Set the Cartesian space impedance control coefficient, effective when performing Cartesian impedance motion
+    * @param[in] factor Impedance coefficient[ X, Y, Z, Rx, Ry, Rz], Maximum value is { 3000, 3000, 3000, 300, 300, 300 }, unit: N/m, Nm/rad
+    * The actual effective maximum value is related to the hardware status such as the sensor. If phenomena like jitter occur, please try reducing the impedance coefficient.。
+    * @param[out] ec Error code
     */
    void setCartesianImpedance(const std::array<double, 6> &factor, error_code &ec) noexcept;
 
    /**
-    * @brief 设置机器人控制器的滤波截止频率，用来平滑指令。允许的范围: 1 ~ 1000Hz, 建议设置为10 ~ 100Hz。
-    * @param[in] jointFrequency 关节位置的滤波截止频率，单位: Hz
-    * @param[in] cartesianFrequency 笛卡尔空间位置的滤波截止频率，单位: Hz
-    * @param[in] torqueFrequency 关节力矩的滤波截止频率，单位: Hz
-    * @param[out] ec 错误码
+    * @brief Set the filter cutoff frequency of the robot controller, used to smooth commands. Allowed range: 1 ~ 1000Hz, Recommended to set as10 ~ 100Hz。
+    * @param[in] jointFrequency Filter cutoff frequency of joint position, unit: Hz
+    * @param[in] cartesianFrequency Filter cutoff frequency of Cartesian spatial position, unit: Hz
+    * @param[in] torqueFrequency Filter cutoff frequency of joint torque, unit: Hz
+    * @param[out] ec Error code
     */
    void setFilterFrequency(double jointFrequency, double cartesianFrequency, double torqueFrequency, error_code &ec) noexcept;
 
    /**
-    * @brief 设置末端期望力, 在笛卡尔空间阻抗运动时生效
-    * @param[in] torque 笛卡尔空间末端期望力, 允许的范围为 { ±60, ±60, ±60, ±30, ±30, ±30 }, 单位: N, N·m
-    * @param[out] ec 错误码
+    * @brief Set the terminal desired force, effective during Cartesian space impedance motion
+    * @param[in] torque Expected force at the end of the Cartesian space, allowable range is { ±60, ±60, ±60, ±30, ±30, ±30 }, unit: N, N·m
+    * @param[out] ec Error code
     */
    void setCartesianImpedanceDesiredTorque(const std::array<double, 6> &torque, error_code &ec) noexcept;
 
    /**
-    * @brief 设置滤波参数
-    * @param[in] frequency 允许的范围 1 ~ 1000Hz
-    * @param[out] ec 错误码
+    * @brief Set filter parameters
+    * @param[in] frequency Permissible range 1 ~ 1000Hz
+    * @param[out] ec Error code
     */
    void setTorqueFilterCutOffFrequency(double frequency, error_code &ec) noexcept;
 
    /**
-    * @brief 设置机器人力控坐标系
-    * @param[in] frame 力控坐标系相对于法兰坐标系的变换矩阵
-    * @param[in] type 类别, 指定哪个坐标系为力控任务坐标系, 支持:
-    *     1) 世界坐标系 FrameType::world;
-    *     2) 工具坐标系 FrameType::tool;
-    *     3) 路径坐标系 FrameType::path (力控任务坐标系需要跟踪轨迹变化的过程)
-    * @param[out] ec 错误码
+    * @brief Set robot force control coordinate system
+    * @param[in] frame Transformation matrix of the force control coordinate system relative to the flange coordinate system
+    * @param[in] type Category, specify which coordinate system is used as the force control task coordinate system, supported:
+    *     1) World Coordinate System FrameType::world;
+    *     2) Tool Coordinate System FrameType::tool;
+    *     3) Path Coordinate System FrameType::path (The force control task coordinate system needs to track the process of trajectory changes)
+    * @param[out] ec Error code
     */
    void setFcCoor(const std::array<double, 16> &frame, FrameType type, error_code &ec) noexcept;
 
    /**
-    * @brief 设置碰撞检测阈值。
-    * 碰撞检测只在位置控制时生效，力控时不生效。若检测到碰撞，控制器会下发下电指令，电机抱闸吸合下使能。
-    * @param[in] torqueThresholds 关节碰撞检测阈值, 单位N。
-    * xMateErPro机型最大值为 { 75, 75, 60, 45, 30, 30, 20 }，
-    * 其他机型最大值为{ 75, 75, 45, 30, 30, 20 }
-    * 5轴机型最大值为{ 75, 75, 45, 30, 20 }
-    * @param[out] ec 错误码
+    * @brief Set collision detection threshold。
+    * Collision detection is only effective during position control and does not work during force control. If a collision is detected, the controller will issue a power-down command, and the motor brake will engage to disable the drive.。
+    * @param[in] torqueThresholds Joint collision detection threshold, unitN。
+    * xMateErProThe maximum value of the model is { 75, 75, 60, 45, 30, 30, 20 }，
+    * The maximum value for other models is{ 75, 75, 45, 30, 30, 20 }
+    * 5The maximum value of the shaft model is{ 75, 75, 45, 30, 20 }
+    * @param[out] ec Error code
     */
    void setCollisionBehaviour(const std::array<double, DoF> &torqueThresholds, error_code &ec) noexcept;
 
@@ -390,8 +390,8 @@ namespace rokae {
 
  /**
   * @class RtMotionControlIndustrial
-  * @brief 工业机型实时模式运动控制类
-  * @tparam DoF 轴数
+  * @brief Industrial Model Real-Time Mode Motion Control Class
+  * @tparam DoF Number of axles
   */
  template <unsigned short DoF>
  class XCORE_API RtMotionControlIndustrial: public RtMotionControl<WorkType::industrial, DoF> {

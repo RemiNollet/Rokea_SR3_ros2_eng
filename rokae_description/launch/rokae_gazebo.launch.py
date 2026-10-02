@@ -83,7 +83,7 @@ def generate_launch_description():
         parameters=[{"use_sim_time": True}]
     )
 
-    # ======================== 【这里是我帮你加的：场景服务节点】 ========================
+    # ======================== 【Here is what I added for you: Scene Service Node】 ========================
     scene_manager_node = Node(
         package="rokae_hardware",
         executable="scene_service",
@@ -91,7 +91,7 @@ def generate_launch_description():
         parameters=[{"use_sim_time": True}]
     )
 
-    # ✅ 延迟启动 GUI
+    # ✅ Delayed Start GUI
     delayed_gui = TimerAction(
         period=5.0,
         actions=[joint_state_publisher_gui, gui_control_node]
@@ -105,5 +105,5 @@ def generate_launch_description():
         TimerAction(period=3.0, actions=[joint_state_broadcaster]),
         TimerAction(period=4.0, actions=[arm_controller]),
         delayed_gui,
-        scene_manager_node   # <--- 已加入！
+        scene_manager_node   # <--- Joined！
     ])

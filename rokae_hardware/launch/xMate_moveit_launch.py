@@ -27,22 +27,22 @@ def load_yaml(package_name, file_path):
 
 def generate_launch_description():
     robot_type = LaunchConfiguration("robot_type")
-    # 获取路径
+    # Get Path
     description_pkg = FindPackageShare("rokae_description").find("rokae_description")
-    # 拼出 rokae_xMateSR4_moveit_config 包名
+    # spell out rokae_xMateSR4_moveit_config Package name
     moveit_config_pkg_name = PythonExpression([
         "'rokae_xMate' + '", robot_type, "' + '_moveit_config'"
     ])
 
-    # 得到 rokae_xMateSR4_moveit_config 的 share 路径
+    # get rokae_xMateSR4_moveit_config the share path
     moveit_config_pkg_share = FindPackageShare(moveit_config_pkg_name)
 
-    # 获取参数
+    # Get parameters
     robot_ip = LaunchConfiguration('robot_ip')
     local_ip = LaunchConfiguration('local_ip')
     warehouse_sqlite_path = LaunchConfiguration("warehouse_sqlite_path")
 
-    # URDF/xacro 路径
+    # URDF/xacro Path
     urdf_file = os.path.join(description_pkg, "urdf", "xMate.urdf.xacro")
     srdf_file = PathJoinSubstitution([
         moveit_config_pkg_share,
@@ -53,22 +53,22 @@ def generate_launch_description():
     ])
 
 
-    # robot_description 参数（xacro 动态传参）
+    # robot_description Parameters (xacro dynamic parameters)）
     robot_description = {
         "robot_description": Command([
             " xacro ", urdf_file,
             # " xMate_type:=", PythonExpression(["'xMate_' + '", robot_type, "'"]),
-            " robot_type:=", robot_type,       # 这里很关键
+            " robot_type:=", robot_type,       # This is very important
             " robot_ip:=", robot_ip,
             " local_ip:=", local_ip,
             " use_fake_hardware:=true"
         ])
     }
     
-    # robot_description 参数（xacro 动态传参）
+    # robot_description Parameters (xacro dynamic parameters)）
     robot_description_semantic = {
     "robot_description_semantic": ParameterValue(
-        Command(["cat " ,  srdf_file]),   #加空格，否则cat本身会被当成字符串读到路径中产生报错
+        Command(["cat " ,  srdf_file]),   #Add a space, otherwise 'cat' itself will be read into the path as a string, causing an error
         value_type=str
     )
 }
@@ -135,7 +135,7 @@ def generate_launch_description():
         "warehouse_host": warehouse_sqlite_path,
     }
 
-    # 启动 move_group 节点
+    # Start move_group Node
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -155,7 +155,7 @@ def generate_launch_description():
     )
     
 
-    # RViz可选节点（带 moveit config）
+    # RVizOptional node (with moveit config）
     rviz_config_file = PathJoinSubstitution([
         moveit_config_pkg_share,
         "rviz",

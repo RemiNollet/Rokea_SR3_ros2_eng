@@ -1,10 +1,10 @@
 0.0.4 (2026-05-15)
 ------------------
-* 随栈发布 0.0.4。
+* Released with stack 0.0.4.
 
 0.0.3 (2026-05-06)
 ------------------
-* 适配 xMate CR35：launch、控制器 yaml、硬件接口及 doc 说明更新。
+* xMate CR35 support: launch files, controller YAML, hardware interface, and documentation updates.
 
 0.0.2 (2026-04-10)
 ------------------

@@ -14,13 +14,13 @@ def generate_launch_description():
     urdf_file = os.path.join(description_pkg, "urdf", "xMate.urdf.xacro")
     controller_yaml = os.path.join(hardware_pkg, "config", "xMateCR_controllers.yaml")
 
-    # 声明launch参数，提供默认IP（根据你实际情况改）
+    # Declare launch parameters and provide a default IP (modify according to your actual situation)）
     robot_ip = LaunchConfiguration('robot_ip', default='192.168.21.10')
     local_ip = LaunchConfiguration('local_ip', default='192.168.21.131')
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
     
 
-    # 从xacro文件中获取的参数
+    # Parameters obtained from the xacro file
     robot_description = {
         "robot_description": Command([
             "xacro ", urdf_file,

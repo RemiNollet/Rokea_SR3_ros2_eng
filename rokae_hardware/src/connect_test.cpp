@@ -8,50 +8,50 @@
 
 int main(int argc, char** argv) {
     if (argc != 3) {
-        std::cout << "用法: " << argv[0] << " <机器人IP> <本地IP>" << std::endl;
+        std::cout << "Usage: " << argv[0] << " <RobotIP> <LocalIP>" << std::endl;
         return 1;
     }
     
     std::string robot_ip = argv[1];
     std::string local_ip = argv[2];
     
-    std::cout << "Rokae 网络通信测试\n";
-    std::cout << "机器人IP: " << robot_ip << ", 本地IP: " << local_ip << "\n";
-    std::cout << "按 Enter 开始测试..." << std::endl;
+    std::cout << "Rokae Network communication testing\n";
+    std::cout << "RobotIP: " << robot_ip << ", LocalIP: " << local_ip << "\n";
+    std::cout << "Press Enter to start the test..." << std::endl;
     std::cin.ignore();
     
     try {
-        // 连接机器人
+        // Connect the robot
         rokae::xMateRobot robot(robot_ip, local_ip);
         std::error_code ec;
         robot.connectToRobot(ec);
-        if (ec) throw std::runtime_error("连接失败: " + ec.message());
+        if (ec) throw std::runtime_error("Connection failed: " + ec.message());
         
-        // 设置机器人模式
+        // Set robot mode
         robot.setOperateMode(rokae::OperateMode::automatic, ec);
         robot.setMotionControlMode(rokae::MotionControlMode::RtCommand, ec);
         robot.setPowerState(true, ec);
-        if (ec) throw std::runtime_error("设置模式失败: " + ec.message());
+        if (ec) throw std::runtime_error("Failed to set mode: " + ec.message());
         
-        // 移动到零位
+        // Move to zero position
         std::array<double, 6> zero_position = {0, 0, 0, 0, 0, 0};
-        std::cout << "移动到零位..." << std::endl;
+        std::cout << "Move to zero position..." << std::endl;
         auto rtCon = robot.getRtMotionController().lock();
         if (rtCon) {
             rtCon->MoveJ(0.3, robot.jointPos(ec), zero_position);
         }
         
-        // 启动状态接收
+        // Startup State Reception
         robot.startReceiveRobotState(std::chrono::milliseconds(1), {
             rokae::RtSupportedFields::jointPos_m
         });
         
-        // 测试参数
-        const int TEST_DURATION_MS = 10000;  // 10秒
+        // Test parameters
+        const int TEST_DURATION_MS = 10000;  // 10second
         const int TARGET_FREQ = 1000;        // 1000Hz
         const int CYCLE_US = 1000000 / TARGET_FREQ;  // 1000us = 1ms
         
-        // 统计变量
+        // statistical variable
         std::atomic<int> cycle_count{0};
         std::atomic<int> success_count{0};
         std::atomic<int> failed_count{0};
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
         std::atomic<double> max_delay{0.0};
         std::atomic<double> total_delay{0.0};
         
-        std::cout << "开始 " << TARGET_FREQ << "Hz 网络测试..." << std::endl;
+        std::cout << "Start " << TARGET_FREQ << "Hz Network test..." << std::endl;
         
         auto test_start = std::chrono::steady_clock::now();
         auto test_end = test_start + std::chrono::milliseconds(TEST_DURATION_MS);
@@ -68,14 +68,14 @@ int main(int argc, char** argv) {
             auto cycle_start = std::chrono::high_resolution_clock::now();
             
             try {
-                // 核心测试：读取关节位置
+                // Core Test: Reading Joint Positions
                 std::array<double, 6> pos{};
                 auto read_start = std::chrono::high_resolution_clock::now();
                 int ret_=robot.updateRobotState(std::chrono::milliseconds(1)); 
                 int ret = robot.getStateData(rokae::RtSupportedFields::jointPos_m, pos);
                 auto read_end = std::chrono::high_resolution_clock::now();
                 
-                // 计算延迟
+                // Computation delay
                 double delay_ms = std::chrono::duration<double, std::milli>(
                     read_end - read_start).count();
                 
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
                 if (success) {
                     success_count++;
                     
-                    // 更新延迟统计
+                    // Update Delay Statistics
                     if (delay_ms < min_delay) min_delay = delay_ms;
                     if (delay_ms > max_delay) max_delay = delay_ms;
                     total_delay.store(total_delay.load() + delay_ms);
@@ -93,12 +93,12 @@ int main(int argc, char** argv) {
                     failed_count++;
                 }
                 
-                // 每100次循环打印一次
+                // Print once every 100 cycles
                 if (cycle_count % 100 == 0) {
                     double success_rate = (double)success_count / cycle_count;
                     std::cout << "#" << cycle_count 
-                              << " 成功率: " << std::fixed << std::setprecision(1) << (success_rate * 100) << "%"
-                              << " 延迟: " << std::setprecision(3) << delay_ms << "ms"
+                              << " Success rate: " << std::fixed << std::setprecision(1) << (success_rate * 100) << "%"
+                              << " Delay: " << std::setprecision(3) << delay_ms << "ms"
                               << std::endl;
                 }
                 
@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
                 cycle_count++;
             }
             
-            // 精确控制频率
+            // Precise frequency control
             auto cycle_end = std::chrono::high_resolution_clock::now();
             auto cycle_time = std::chrono::duration_cast<std::chrono::microseconds>(
                 cycle_end - cycle_start);
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
             }
         }
         
-        // 测试结束，计算统计
+        // Test ended, calculate statistics
         int total = cycle_count;
         int success = success_count;
         int lost = failed_count;
@@ -126,28 +126,28 @@ int main(int argc, char** argv) {
         double avg_delay = (success > 0) ? total_delay / success : 0.0;
         double success_rate = (total > 0) ? (double)success / total : 0.0;
         
-        // 输出结果
-        std::cout << "\n\n================ 测试结果 ================\n";
-        std::cout << "总循环次数: " << total << "\n";
-        std::cout << "成功次数: " << success << "\n";
-        std::cout << "丢失次数: " << lost << "\n";
-        std::cout << "丢包率: " << std::fixed << std::setprecision(2) 
+        // Output result
+        std::cout << "\n\n================ Test Results ================\n";
+        std::cout << "Total number of cycles: " << total << "\n";
+        std::cout << "Number of successes: " << success << "\n";
+        std::cout << "Number of Losses: " << lost << "\n";
+        std::cout << "Packet loss rate: " << std::fixed << std::setprecision(2) 
                   << ((double)lost / total * 100) << "%\n";
-        std::cout << "成功率: " << std::fixed << std::setprecision(2) 
+        std::cout << "Success rate: " << std::fixed << std::setprecision(2) 
                   << (success_rate * 100) << "%\n";
-        std::cout << "最小延迟: " << std::fixed << std::setprecision(3) 
+        std::cout << "Minimal latency: " << std::fixed << std::setprecision(3) 
                   << min_delay << "ms\n";
-        std::cout << "平均延迟: " << std::fixed << std::setprecision(3) 
+        std::cout << "Average latency: " << std::fixed << std::setprecision(3) 
                   << avg_delay << "ms\n";
-        std::cout << "最大延迟: " << std::fixed << std::setprecision(3) 
+        std::cout << "Maximum delay: " << std::fixed << std::setprecision(3) 
                   << max_delay << "ms\n";
         std::cout << "========================================\n";
         
-        // 清理
+        // Clean
         robot.setPowerState(false, ec);
         
     } catch (const std::exception& e) {
-        std::cerr << "错误: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
     

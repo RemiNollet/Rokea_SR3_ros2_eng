@@ -73,19 +73,19 @@ public:
       "/load_scene", std::bind(&SceneManager::load_cb, this, _1, _2));
     save_service_ = create_service<SceneService>(
       "/save_scene", std::bind(&SceneManager::save_cb, this, _1, _2));
-    RCLCPP_INFO(get_logger(), "场景服务已就绪（ROS 2 Service，不是 Topic）。");
+    RCLCPP_INFO(get_logger(), "The scene service is ready (ROS 2 Service, not Topic）。");
     RCLCPP_INFO(
       get_logger(),
-      "  /load_scene  类型 rokae_hardware/srv/SceneService  —  示例: ros2 service call /load_scene "
+      "  /load_scene  Type rokae_hardware/srv/SceneService  —  Example: ros2 service call /load_scene "
       "rokae_hardware/srv/SceneService \"{scene_name: obstacles}\"");
     RCLCPP_INFO(
       get_logger(),
-      "  /save_scene  类型 rokae_hardware/srv/SceneService  —  示例: ros2 service call /save_scene "
+      "  /save_scene  Type rokae_hardware/srv/SceneService  —  Example: ros2 service call /save_scene "
       "rokae_hardware/srv/SceneService \"{scene_name: my_dump}\"");
     RCLCPP_INFO(
       get_logger(),
-      "world 文件目录: 包 %s/share/%s/worlds/ ；若 ros2 run 报 No executable found，请先在本工作空间执行 "
-      "colcon build --packages-select rokae_hardware 并 source install/setup.bash",
+      "world File directory: package %s/share/%s/worlds/; if 'ros2 run' reports No executable found, please first execute in this workspace "
+      "colcon build --packages-select rokae_hardware and source install/setup.bash",
       worlds_package_.c_str(), worlds_package_.c_str());
   }
 
@@ -102,17 +102,17 @@ private:
     if (path.empty()) {
       res->success = false;
       res->message =
-        "未找到场景文件。请将 " + req->scene_name +
-        " 放在 " + worlds_package_ + "/worlds/ 下，或使用完整文件名（含 .world）。";
+        "Scene file not found. Please place " + req->scene_name +
+        " put on " + worlds_package_ + "/worlds/ Below, or use the full file name (including .world）。";
       RCLCPP_ERROR(get_logger(), "%s", res->message.c_str());
       return;
     }
     set_parameter(rclcpp::Parameter{"scene.active_world_file", path});
-    /* Classic Gazebo 通常在启动时载入 world；此处校验路径并记录参数，供文档/其它节点使用 */
+    /* Classic Gazebo Usually loaded at startup; here, the path is verified and parameters are recorded for documentation/other nodes to use */
     res->success = true;
     res->message =
-      "场景已解析: " + path +
-      "。若需替换运行中的世界，请关闭 Gazebo 后用 launch 的 world 参数启动该文件。";
+      "Scene has been parsed: " + path +
+      "。If you need to replace a running world, please close Gazebo and then start this file using the launch's world parameter.。";
     RCLCPP_INFO(get_logger(), "%s", res->message.c_str());
   }
 
@@ -128,14 +128,14 @@ private:
       name += ".world";
     }
 
-    /* 将 worlds 包中 obstacles.world 的快照保存到用户目录（无法从 Gazebo 内存直接导出时的折中） */
+    /* Save a snapshot of obstacles.world from the worlds package to the user directory (a compromise when it cannot be exported directly from Gazebo memory)） */
     std::string src = resolve_world_path("obstacles.world", worlds_package_);
     if (src.empty()) {
       src = resolve_world_path("empty.world", worlds_package_);
     }
     if (src.empty()) {
       res->success = false;
-      res->message = "无法定位源 world 文件（obstacles/empty）。";
+      res->message = "Cannot locate source world file（obstacles/empty）。";
       RCLCPP_ERROR(get_logger(), "%s", res->message.c_str());
       return;
     }
@@ -143,7 +143,7 @@ private:
     const std::filesystem::path out = user_storage_dir() / "saved_worlds" / name;
     if (!copy_file_to(std::filesystem::path(src), out)) {
       res->success = false;
-      res->message = "写入失败: " + out.string();
+      res->message = "Write failed: " + out.string();
       RCLCPP_ERROR(get_logger(), "%s", res->message.c_str());
       return;
     }
@@ -154,7 +154,7 @@ private:
     }
 
     res->success = true;
-    res->message = "已保存副本: " + out.string();
+    res->message = "Copy saved: " + out.string();
     RCLCPP_INFO(get_logger(), "%s", res->message.c_str());
   }
 };

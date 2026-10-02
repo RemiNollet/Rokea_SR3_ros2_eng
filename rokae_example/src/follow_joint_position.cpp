@@ -1,4 +1,4 @@
-// MoveIt + FollowJointTrajectory 关节空间往复轨迹示范
+// MoveIt + FollowJointTrajectory Joint space reciprocating trajectory demonstration
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
@@ -41,7 +41,7 @@ public:
 		goal_tolerance_rad_ = this->declare_parameter<double>("goal_tolerance_rad", 0.01);
 		vel_scale_ = this->declare_parameter<double>("vel_scale", 0.2);
 		acc_scale_ = this->declare_parameter<double>("acc_scale", 0.2);
-		cycle_count_ = this->declare_parameter<int>("cycle_count", 0);  // 0: 无限循环
+		cycle_count_ = this->declare_parameter<int>("cycle_count", 0);  // 0: Infinite loop
 	}
 
 	void set_move_group(std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group)
@@ -52,17 +52,17 @@ public:
 	bool run_reciprocating_motion()
 	{
 		if (!move_group_) {
-			RCLCPP_ERROR(this->get_logger(), "MoveGroupInterface 未初始化");
+			RCLCPP_ERROR(this->get_logger(), "MoveGroupInterface Uninitialized");
 			return false;
 		}
 
 		if (point_period_s_ <= 0.0 || start_blend_s_ <= 0.0) {
-			RCLCPP_ERROR(this->get_logger(), "参数非法，要求 point_period_s/start_blend_s > 0");
+			RCLCPP_ERROR(this->get_logger(), "Invalid parameter, required point_period_s/start_blend_s > 0");
 			return false;
 		}
 
 		if (!trajectory_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-			RCLCPP_ERROR(this->get_logger(), "FollowJointTrajectory action server 不可用");
+			RCLCPP_ERROR(this->get_logger(), "FollowJointTrajectory action server Not available");
 			return false;
 		}
 
@@ -79,18 +79,18 @@ public:
 		const size_t dof = current.size();
 
 		if (joint_names.size() != dof || dof == 0) {
-			RCLCPP_ERROR(this->get_logger(), "关节名与关节位置维度不一致或为空");
+			RCLCPP_ERROR(this->get_logger(), "Joint name and joint position dimensions are inconsistent or empty");
 			return false;
 		}
 
 		auto preset = build_preset_sequence(robot_type_, dof, current);
 		if (preset.empty()) {
-			RCLCPP_ERROR(this->get_logger(), "未生成有效预设轨迹");
+			RCLCPP_ERROR(this->get_logger(), "No valid preset trajectory generated");
 			return false;
 		}
 
 		if (!move_to_start_position(preset.front())) {
-			RCLCPP_ERROR(this->get_logger(), "移动到起点失败");
+			RCLCPP_ERROR(this->get_logger(), "Failed to move to the starting point");
 			return false;
 		}
 
@@ -98,7 +98,7 @@ public:
 		while (rclcpp::ok() && (cycle_count_ <= 0 || cycle_index < cycle_count_)) {
 			const auto cycle_points = build_reciprocating_points(preset);
 			if (cycle_points.size() < 2) {
-				RCLCPP_ERROR(this->get_logger(), "往复轨迹点不足");
+				RCLCPP_ERROR(this->get_logger(), "Insufficient reciprocating trajectory points");
 				return false;
 			}
 
@@ -124,19 +124,19 @@ public:
 
 			const bool sent_ok = send_goal_and_wait(goal, point_period_s_, cycle_points.size());
 			if (!sent_ok) {
-				RCLCPP_WARN(this->get_logger(), "轨迹执行失败，尝试重启控制器");
+				RCLCPP_WARN(this->get_logger(), "Trajectory execution failed, try restarting the controller");
 				if (!reset_controller(kControllerName)) {
-					RCLCPP_ERROR(this->get_logger(), "控制器恢复失败，终止任务");
+					RCLCPP_ERROR(this->get_logger(), "Controller recovery failed, terminating task");
 					return false;
 				}
 				continue;
 			}
 
 			++cycle_index;
-			RCLCPP_INFO(this->get_logger(), "完成第 %d 次往复周期", cycle_index);
+			RCLCPP_INFO(this->get_logger(), "Completed the %dth cycle", cycle_index);
 		}
 
-		RCLCPP_INFO(this->get_logger(), "关节往复轨迹任务结束");
+		RCLCPP_INFO(this->get_logger(), "Joint reciprocating trajectory task completed");
 		return true;
 	}
 
@@ -201,7 +201,7 @@ private:
 		const bool want_7d = is_seven_dof_model(type_upper);
 
 		if (want_7d && dof >= 7) {
-			RCLCPP_INFO(this->get_logger(), "机型 %s: 载入 7 轴预设轨迹", type_upper.c_str());
+			RCLCPP_INFO(this->get_logger(), "Model %s: Loading 7-axis preset trajectory", type_upper.c_str());
 			return {
 				make_target_with_prefix(current, {0.10, 0.30, 0.10, 0.50, 0.10, 0.30, 0.00}),
 				make_target_with_prefix(current, {0.20, 0.50, 0.00, 0.70, 0.20, 0.50, 0.15}),
@@ -213,11 +213,11 @@ private:
 		}
 
 		if (dof < 6) {
-			RCLCPP_ERROR(this->get_logger(), "当前自由度 %zu 小于 6，无法加载预设轨迹", dof);
+			RCLCPP_ERROR(this->get_logger(), "The current degrees of freedom %zu is less than 6, unable to load the preset trajectory", dof);
 			return {};
 		}
 
-		RCLCPP_INFO(this->get_logger(), "机型 %s: 载入 6 轴预设轨迹", type_upper.c_str());
+		RCLCPP_INFO(this->get_logger(), "Model %s: Loading 6-axis preset trajectory", type_upper.c_str());
 		return {
 			make_target_with_prefix(current, {-0.018, 0.494, -1.628, 0.102, -1.023, -0.071}),
 			make_target_with_prefix(current, {-0.033, 0.466, -1.684, 0.207, -1.007, -0.145}),
@@ -240,16 +240,16 @@ private:
 
 		moveit::planning_interface::MoveGroupInterface::Plan plan;
 		if (arm.plan(plan) != moveit::core::MoveItErrorCode::SUCCESS) {
-			RCLCPP_ERROR(this->get_logger(), "起点规划失败");
+			RCLCPP_ERROR(this->get_logger(), "Starting point planning failed");
 			return false;
 		}
 
 		if (arm.execute(plan) != moveit::core::MoveItErrorCode::SUCCESS) {
-			RCLCPP_ERROR(this->get_logger(), "起点执行失败");
+			RCLCPP_ERROR(this->get_logger(), "Failed to execute starting point");
 			return false;
 		}
 
-		RCLCPP_INFO(this->get_logger(), "已到达往复轨迹起点");
+		RCLCPP_INFO(this->get_logger(), "Reached the starting point of the reciprocating path");
 		return true;
 	}
 
@@ -276,13 +276,13 @@ private:
 	{
 		auto goal_future = trajectory_action_client_->async_send_goal(goal);
 		if (goal_future.wait_for(std::chrono::seconds(5)) != std::future_status::ready) {
-			RCLCPP_ERROR(this->get_logger(), "发送轨迹 goal 超时");
+			RCLCPP_ERROR(this->get_logger(), "Sending trajectory goal timed out");
 			return false;
 		}
 
 		auto goal_handle = goal_future.get();
 		if (!goal_handle) {
-			RCLCPP_ERROR(this->get_logger(), "轨迹 goal 被拒绝");
+			RCLCPP_ERROR(this->get_logger(), "Trajectory goal was rejected");
 			return false;
 		}
 
@@ -292,18 +292,18 @@ private:
 			std::chrono::duration<double>(run_time));
 
 		if (result_future.wait_for(wait_timeout) != std::future_status::ready) {
-			RCLCPP_ERROR(this->get_logger(), "等待轨迹执行结果超时");
+			RCLCPP_ERROR(this->get_logger(), "Waiting for trajectory execution result timed out");
 			return false;
 		}
 
 		const auto wrapped_result = result_future.get();
 		if (wrapped_result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-			RCLCPP_ERROR(this->get_logger(), "轨迹执行失败，action result code: %d", static_cast<int>(wrapped_result.code));
+			RCLCPP_ERROR(this->get_logger(), "Trajectory execution failed，action result code: %d", static_cast<int>(wrapped_result.code));
 			return false;
 		}
 
 		if (wrapped_result.result && wrapped_result.result->error_code != 0) {
-			RCLCPP_ERROR(this->get_logger(), "控制器返回错误码: %d", wrapped_result.result->error_code);
+			RCLCPP_ERROR(this->get_logger(), "Controller returns error code: %d", wrapped_result.result->error_code);
 			return false;
 		}
 
@@ -313,7 +313,7 @@ private:
 	bool reset_controller(const std::string& controller_name)
 	{
 		if (!controller_client_->wait_for_service(std::chrono::seconds(3))) {
-			RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/switch_controller 不可用！");
+			RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/switch_controller Not available！");
 			return false;
 		}
 
@@ -325,12 +325,12 @@ private:
 
 		auto future = controller_client_->async_send_request(request);
 		if (!wait_for_future_ready(future, std::chrono::seconds(6), "switch_controller")) {
-			RCLCPP_ERROR(this->get_logger(), "调用 /switch_controller 服务失败！");
+			RCLCPP_ERROR(this->get_logger(), "Call /switch_controller Service failed！");
 			return false;
 		}
 
 		if (!future.get()->ok) {
-			RCLCPP_ERROR(this->get_logger(), "控制器切换失败，可能资源被占用！");
+			RCLCPP_ERROR(this->get_logger(), "Controller switch failed, the resource may be occupied！");
 			return false;
 		}
 
@@ -338,7 +338,7 @@ private:
 			"/controller_manager/list_controllers");
 
 		if (!list_client->wait_for_service(std::chrono::seconds(3))) {
-			RCLCPP_ERROR(this->get_logger(), "服务 /controller_manager/list_controllers 不可用！");
+			RCLCPP_ERROR(this->get_logger(), "Service /controller_manager/list_controllers Not available！");
 			return false;
 		}
 
@@ -348,14 +348,14 @@ private:
 			auto list_future = list_client->async_send_request(list_req);
 
 			if (!wait_for_future_ready(list_future, std::chrono::seconds(3), "list_controllers")) {
-				RCLCPP_WARN(this->get_logger(), "查询控制器状态失败，重试中...");
+				RCLCPP_WARN(this->get_logger(), "Failed to query controller status, retrying...");
 				continue;
 			}
 
 			auto response = list_future.get();
 			for (const auto& ctrl : response->controller) {
 				if (ctrl.name == controller_name && ctrl.state == "active") {
-					RCLCPP_INFO(this->get_logger(), "控制器 [%s] 已重新激活", controller_name.c_str());
+					RCLCPP_INFO(this->get_logger(), "Controller [%s] Reactivated", controller_name.c_str());
 					return true;
 				}
 			}
@@ -363,7 +363,7 @@ private:
 			rclcpp::sleep_for(std::chrono::milliseconds(500));
 		}
 
-		RCLCPP_ERROR(this->get_logger(), "控制器 [%s] 未进入 active 状态", controller_name.c_str());
+		RCLCPP_ERROR(this->get_logger(), "Controller [%s] Not entered active state", controller_name.c_str());
 		return false;
 	}
 
@@ -380,12 +380,12 @@ private:
 			}
 
 			if (std::chrono::steady_clock::now() - start >= timeout) {
-				RCLCPP_ERROR(this->get_logger(), "%s 超时", tag.c_str());
+				RCLCPP_ERROR(this->get_logger(), "%s Timeout", tag.c_str());
 				return false;
 			}
 		}
 
-		RCLCPP_ERROR(this->get_logger(), "%s 等待被中断", tag.c_str());
+		RCLCPP_ERROR(this->get_logger(), "%s Waiting to be interrupted", tag.c_str());
 		return false;
 	}
 };
@@ -412,7 +412,7 @@ int main(int argc, char** argv)
 
 	const bool ok = node->run_reciprocating_motion();
 	if (!ok) {
-		RCLCPP_ERROR(node->get_logger(), "follow_joint_position 执行失败");
+		RCLCPP_ERROR(node->get_logger(), "follow_joint_position Execution failed");
 	}
 
 	rclcpp::shutdown();

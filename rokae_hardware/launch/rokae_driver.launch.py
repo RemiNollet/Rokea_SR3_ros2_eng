@@ -5,19 +5,19 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     return LaunchDescription([
-        # 声明可配置参数
+        # Declare configurable parameters
         DeclareLaunchArgument(
             'robot_ip',
             default_value='192.168.2.160',
-            description='机器人控制器IP地址'
+            description='Robot Controller IP Address'
         ),
         DeclareLaunchArgument(
             'local_ip',
             default_value='192.168.2.100',
-            description='本地计算机IP地址'
+            description='Local computer IP address'
         ),
         
-        # 启动rokae_driver节点
+        # Startrokae_driverNode
         Node(
             package='rokae_hardware',
             executable='rokae_driver',
@@ -27,12 +27,12 @@ def generate_launch_description():
                 'robot_ip': LaunchConfiguration('robot_ip'),
                 'local_ip': LaunchConfiguration('local_ip'),
             }],
-            # 可以设置remapping等
+            # You can set remapping and so on
             remappings=[
-                # 如果需要重映射话题，可以在这里添加
+                # If you need to remap topics, you can add them here
                 # ('/rokae_driver/joint_states', '/joint_states'),
             ],
-            # 可以设置节点命名空间
+            # You can set the node namespace
             # namespace='robot1',
         )
     ])
